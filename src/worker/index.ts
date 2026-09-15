@@ -12,7 +12,7 @@ import { requireOrganizationAdmin, requireTenant } from "./tenant";
 import { listAccessibleBranches } from "./tenant/branch";
 import { listMembers, provisionMember, resendMemberSetup, updateMemberAccess, updateMemberStatus } from "./tenant/members";
 import { listCompanies, selectCompany } from "./tenant/companies";
-import { getLocalePreferences, readLocale, updateCompanyLocale, updateUserLocale } from "./localization";
+import { getLocalePreferences, readRequiredLocale, updateCompanyLocale, updateUserLocale } from "./localization";
 import { createPaymentMethod, getProductSettings, listExpenseCategories, listPaymentMethods, listVehicleTypes, updatePaymentMethod, updateProductSettings } from "./product/setup";
 
 const app = new Hono<{ Bindings: Env }>();
@@ -107,7 +107,7 @@ app.post("/api/platform/organizations", async (c) => {
 	const companyName = typeof body.companyName === "string" ? body.companyName.trim() : "";
 	const ownerName = typeof body.ownerName === "string" ? body.ownerName.trim() : "";
 	const ownerEmail = typeof body.ownerEmail === "string" ? body.ownerEmail.trim() : "";
-	const locale = readLocale(body.locale ?? null);
+	const locale = readRequiredLocale(body.locale);
 
 	if (!companyName || companyName.length > 200 || !ownerName || ownerName.length > 200 || ownerEmail.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(ownerEmail)) {
 		return c.json({ error: "INVALID_INPUT" }, 400);
