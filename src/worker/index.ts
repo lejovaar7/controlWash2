@@ -13,6 +13,7 @@ import { listAccessibleBranches } from "./tenant/branch";
 import { listMembers, provisionMember, resendMemberSetup, updateMemberAccess, updateMemberStatus } from "./tenant/members";
 import { listCompanies, selectCompany } from "./tenant/companies";
 import { getLocalePreferences, readLocale, updateCompanyLocale, updateUserLocale } from "./localization";
+import { createPaymentMethod, getProductSettings, listExpenseCategories, listPaymentMethods, listVehicleTypes, updatePaymentMethod, updateProductSettings } from "./product/setup";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -62,6 +63,14 @@ app.post("/api/companies/active", async (c) => c.json(await selectCompany(c.env,
 app.get("/api/account/locale", async (c) => c.json(await getLocalePreferences(c.env, c.req.raw)));
 app.patch("/api/account/locale", async (c) => c.json(await updateUserLocale(c.env, c.req.raw, await readJsonObject(c.req.raw))));
 app.patch("/api/company/locale", async (c) => c.json(await updateCompanyLocale(c.env, c.req.raw, await readJsonObject(c.req.raw))));
+
+app.get("/api/product/settings", async (c) => c.json(await getProductSettings(c.env, c.req.raw)));
+app.patch("/api/product/settings", async (c) => c.json(await updateProductSettings(c.env, c.req.raw, await readJsonObject(c.req.raw))));
+app.get("/api/payment-methods", async (c) => c.json(await listPaymentMethods(c.env, c.req.raw)));
+app.post("/api/payment-methods", async (c) => c.json(await createPaymentMethod(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.patch("/api/payment-methods/:id", async (c) => c.json(await updatePaymentMethod(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
+app.get("/api/expense-categories", async (c) => c.json(await listExpenseCategories(c.env, c.req.raw)));
+app.get("/api/vehicle-types", async (c) => c.json(await listVehicleTypes(c.env, c.req.raw)));
 
 /** Tenant-scoped administration; never exposes platform roles. */
 app.get("/api/members", async (c) => {

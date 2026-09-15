@@ -1,47 +1,65 @@
-# SaaS Starter: Project Overview
+# ControlWash Project Overview
 
-This repository is a reusable foundation for closed B2B SaaS products, not a
-business application. Its goal is to provide working identity, companies,
-Branches, access management, email, database access and a neutral UI before a
-cloned product adds its own business features.
+ControlWash is a closed B2B SaaS for car and motorcycle wash businesses. It
+combines a fast operational queue with recorded payments, expenses, worker
+commissions, lightweight inventory, purchases, and retail sales.
 
-## One specification structure
+The repository was cloned from the reusable SaaS template on 2026-09-14. The
+inherited foundation is implemented; the ControlWash domain is specified for
+incremental development. Its operating-settings, default-catalog and configurable
+payment-method foundation is implemented and verified; transaction modules are
+not yet claimed as implemented.
 
-[specs/README.md](specs/README.md) is the single index and entry point for all
-module specifications. Each module describes its current behavior, rules,
-implementation references, limitations and acceptance checks.
+## Documentation structure
 
-This overview does not duplicate those contracts. Module numbers indicate
-reading order, not separate implementation phases or pending work.
+[specs/README.md](specs/README.md) is the canonical module index.
+[PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) defines the audience, promise, MVP, and
+exclusions. [planning/README.md](planning/README.md) organizes decisions, stories,
+and delivery without overriding specifications.
 
 ## Product at a glance
 
-- The SaaS operator creates companies, their first Owner and a `Main` Branch.
-- Owners/admins add employees; users choose their own passwords.
-- Accounts can belong to several companies, with separate memberships and access.
-- Owners access all Branches; admins can have all or selected Branches; members
-  use assignments. Only the Owner can delegate permission to appoint admins.
-- Company access can be deactivated/reactivated without deleting identity or
-  history. One active company auto-enters; multiple require a choice when needed.
-- Platform roles and company roles are separate; server guards enforce access.
-- Public signup, billing and business-specific features are outside the starter.
-- Local, remote dev and production have isolated configurations, databases and
-  explicit commands; cloud resource/domain setup is a separate operation.
-- Language follows personal preference, active company, then application default.
-  UI/email catalogs begin with English and Spanish and can be extended with other
-  languages. Language settings do not translate entered business data.
+- The platform operator provisions a wash company, first Owner, and Main Branch.
+- Owners/admins configure vehicle types, services, prices, payment methods,
+  expense categories, items, and worker commission rules.
+- Operators receive a vehicle without requiring customer details, move it through
+  Waiting → In progress → Ready → Delivered, and collect split payments.
+- Payment methods are simple Organization-defined labels. Cash exists by default;
+  Nequi, Bancolombia, or others can be added without bank integration.
+- Opening balances, income, expenses, adjustments, transfers, and reversals form
+  an immutable operational financial ledger.
+- Purchases connect one financial outflow to stock increases. Retail sales connect
+  payment income to stock decreases and may be standalone or ticket-linked.
+- Supplies support opening stock, manual consumption, waste, adjustments,
+  transfers, and low-stock warnings. Automatic service recipes are deferred.
+- Reports show recorded operational values, not bank reconciliation, accounting
+  profit, fiscal invoices, formal inventory valuation, or payroll.
+- Every request remains Organization-isolated and Branch-authorized by the server.
 
-The detailed boundaries and deferred extension constraints are in
-[Product and Architecture](specs/00-product-and-architecture.md). Current
-membership authority, including administrator creation/promotion rules, is in
-[Member Management](specs/07-member-management.md).
+The inherited boundaries remain in modules 00–09. The ControlWash domain starts
+at [module 10](specs/10-controlwash-product.md); domain permissions and isolation
+are defined in [module 19](specs/19-domain-permissions-and-audit.md).
 
-## Supporting documents
+## Architecture
 
-- [README.md](README.md): installation, bootstrap, configuration and operation.
-- [CLAUDE.md](CLAUDE.md): repository conventions for coding agents.
-- [Verification record](specs/VERIFICATION.md): dated checks and release limits.
+- React 19, Vite 7, TypeScript, Tailwind CSS 4, shadcn/ui on Base UI, and Geist.
+- Hono API on Cloudflare Workers with Static Assets for the SPA.
+- Cloudflare D1 through Drizzle ORM and generated migrations.
+- Better Auth for authentication, Organizations, Teams/Branches, and membership.
+- Typed extensible English/Spanish localization and Cloudflare Email abstraction.
 
-Starter v1 is implemented. The committed access, language and guide changes are
-integrated into `main`. Specification documents remain untracked until their own
-commit is requested. No push or production deployment has been performed.
+Frontend and Worker remain separate TypeScript projects. All API routes live under
+`/api/`; server guards are authoritative. Local, dev, and production resources
+remain isolated and remote release actions require separate authorization.
+
+## Current state
+
+- Implemented: inherited authentication, provisioning, company/Branch/member
+  access, language, environment safety and base application shell; plus product
+  settings, deterministic seed catalogs and payment-method configuration.
+- Partially implemented: modules 10 and 14. The other ControlWash domain modules
+  remain specifications rather than implementation claims.
+- No product Git remote, cloud resources, remote migration, deployment, or push
+  has been created as part of product initialization.
+- `ControlWash` is the selected name; trademark/domain/social clearance remains a
+  separate launch task.

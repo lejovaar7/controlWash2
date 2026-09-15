@@ -1,6 +1,6 @@
 /** English source messages are also stable, typed catalog keys. No user data here. */
 export const messages = [
-	"Home", "SaaS Template", "React, Vite, Hono and Cloudflare Workers.", "Open app",
+	"Home", "ControlWash", "Run every wash, payment, expense and stock movement in one place.", "Open app",
 	"Sign in", "Sign out", "Signing in…", "Use your email and password.", "Email", "Password", "Forgot?",
 	"Your password was changed. Sign in with your new password.", "Resend the verification email",
 	"Forgot password", "We will email you a link to choose a new password.", "Back to sign in", "Send reset link", "Sending…",
@@ -51,6 +51,14 @@ export const messages = [
 	"Only a company owner or administrator can change the company language.", "Save company language", "Company language saved.",
 	"We could not save the language. Please try again.", "We could not load language preferences.", "Loading language preferences…",
 	"Timezone, currency and product-specific settings are not editable in this starter.",
+	"Wash setup", "Configure money and operating defaults before receiving the first vehicle.", "We could not load wash setup.", "Loading wash setup…",
+	"Operating policies", "These defaults keep payments, delivery and stock behavior consistent.", "Currency", "Timezone", "Unpaid delivery",
+	"Block delivery", "Warn and require confirmation", "Negative stock", "Do not allow", "Authorized override with reason", "Save operating policies",
+	"Operating policies saved.", "We could not save operating policies.", "Payment methods", "Cash is ready by default. Add simple labels such as Nequi or Bancolombia.",
+	"Cash", "Deactivate", "Activate", "Add payment method", "Method name", "Example: Nequi", "Method type", "Digital wallet", "Bank", "Card", "Other",
+	"We could not save the payment method.", "Starting catalogs", "These editable defaults prepare expenses and vehicle pricing.", "Vehicle types",
+	"Expense categories", "Full catalog editing arrives with vehicle intake and expenses.", "Motorcycle", "Car", "SUV", "Truck/Pickup",
+	"Wash supplies", "Retail products", "Utilities", "Maintenance", "Rent", "Transport", "Commissions", "Payroll", "Food",
 	"Verify your email", "Confirm your email address to finish setting up your account.", "Verify email",
 	"If you did not create an account, you can ignore this email.", "Reset your password", "Use the link below to choose a new password.",
 	"If you did not request a password reset, you can ignore this email.", "You have been invited to join a team",

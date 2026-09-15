@@ -1,9 +1,71 @@
-# Starter v1 Verification Record
+# ControlWash Verification Record
 
 This is dated execution evidence, not a permanent test-count target or proof of
 production deployment. The latest repository checkpoint is recorded first; earlier
 localization, environment, Starter v1 and dependency-remediation evidence is
 preserved below.
+
+## 2026-09-15: Product setup vertical slice
+
+Implemented the first ControlWash domain slice without changing any remote
+environment. Generated and applied local migration `0007_smiling_kree` for
+Organization operating settings, payment methods, expense categories and vehicle
+types. First access seeds Cash, ten suggested expense categories, four vehicle
+types and policy settings idempotently; no example transaction is created.
+
+Added guarded settings and payment-method management APIs plus read APIs for the
+seeded catalogs. The implementation treats Nequi, Bancolombia and similar names
+as plain configurable labels and stores no credentials. It validates tenant
+context, normalized duplicates, role restrictions and preservation of at least
+one active payment method. `/app/wash-setup` provides responsive bilingual
+settings and add/activate/deactivate payment-method controls.
+
+Eight new Workers tests cover deterministic seeds, cross-tenant isolation,
+settings validation, scoped-admin denial, duplicate payment methods, safe
+deactivation and seeded catalogs. `npm exec -- drizzle-kit check` and
+`npm run check` passed. The complete gate included typecheck, lint, 18
+environment tests, two i18n checks, 157 Workers/D1 tests and
+local/dev/production builds plus deployment dry-runs (177 automated tests total).
+Both `npm audit` and `npm audit --omit=dev` reported zero known vulnerabilities.
+A local HTTP smoke check returned database health OK and served the ControlWash
+SPA at `/app/wash-setup`. No remote migration, cloud resource, commit, push,
+email delivery or deployment was performed. The financial-movement, expense and
+inventory modules remain unimplemented.
+
+## 2026-09-14: ControlWash repository initialization
+
+The reusable template was cloned to `/Users/admin/Personal/controlwash` with
+separate local identity. The former origin was renamed `template`, its fetch URL
+points to the source template, and its push URL is disabled. No product origin,
+commit, push, cloud resource, remote migration, email delivery, or deployment was
+created.
+
+Product planning added the brief, competitor snapshot, decision log, delivery
+plan, user stories, and canonical domain modules 10–20. These modules specify the
+MVP and are explicitly not implementation claims. The inherited application now
+uses the ControlWash package, Worker/database, browser-title, and English/Spanish
+home identity.
+
+Dependency installation initially reported six high-severity development-tool
+findings. Compatible pinned updates were applied to `@cloudflare/vite-plugin`
+1.54.9, `@cloudflare/vitest-plugin` 1.1.9, and Wrangler 4.131.2, with a `js-yaml`
+4.3.2 override. Both `npm audit` and `npm audit --omit=dev` then reported zero
+vulnerabilities. The existing scoped esbuild override remains.
+
+Executed checks on this working tree:
+
+- `npm run cf-typegen` succeeded for Worker `controlwash`.
+- `npm exec -- drizzle-kit check` reported a valid configuration.
+- `npm run db:migrate:local` applied generated migrations 0000–0006 to the new
+  local D1 state.
+- `npm run check` passed typecheck, lint, 18 environment tests, two i18n checks,
+  149 Workers tests, and dev/production/local builds plus dry runs (169 tests).
+- Local `npm run dev` served the application at loopback; `/api/health` returned
+  `{\"status\":\"ok\",\"database\":\"ok\"}` and the page title was ControlWash.
+
+The local `.dev.vars`, Wrangler state, build output, and installed dependencies
+are ignored development artifacts. Domain tables, routes, and screens have not
+yet been implemented; delivery begins with Increment 0 in the planning document.
 
 ## 2026-09-03: Current main and documentation synchronization
 

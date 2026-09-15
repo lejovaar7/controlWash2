@@ -15,8 +15,10 @@ Reusable UI includes:
 - Organization and Branch switchers
 - Language picker for public, personal and company preferences
 
-The starter is intentionally unbranded and contains no product-specific
-navigation or colors.
+The inherited foundation supplied neutral primitives and no product navigation.
+ControlWash navigation, interaction, and visual rules extend this module through
+[module 18](18-product-frontend-and-design.md). Planned domain screens are not
+implementation claims until their verification is recorded.
 
 Source message keys are English; typed catalogs translate UI and email. Reuse Base UI
 patterns rather than assuming Radix-specific examples are compatible. Do not

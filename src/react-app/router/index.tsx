@@ -16,6 +16,7 @@ import { ResetPasswordPage } from "@/pages/ResetPasswordPage";
 import { SettingsPage } from "@/pages/SettingsPage";
 import { SetupAccountPage } from "@/pages/SetupAccountPage";
 import { VerifyEmailPage } from "@/pages/VerifyEmailPage";
+import { ProductSetupPage } from "@/pages/ProductSetupPage";
 
 export const router = createBrowserRouter([
 	{
@@ -50,6 +51,7 @@ export const router = createBrowserRouter([
 		children: [
 			{ index: true, element: <Navigate to="/app/dashboard" replace /> },
 			{ path: "dashboard", element: <DashboardPage /> },
+			{ path: "wash-setup", element: <ProductSetupPage /> },
 			{ path: "branches", element: <BranchesPage /> },
 			{ path: "no-branch-access", element: <NoBranchAccessPage /> },
 			{ path: "members", element: <MembersPage /> },

@@ -50,9 +50,11 @@ Guidance for Claude Code when working in this repository.
 
 ## What this project is
 
-A reusable base template for building SaaS products. It is not a product itself —
-it is the starting point that future SaaS projects get cloned from. Every
-decision should favour clarity and reusability over cleverness.
+ControlWash is a closed B2B SaaS for car and motorcycle wash businesses. It
+coordinates wash tickets and queues, payments and expenses, workers and simple
+commissions, lightweight inventory, and counter sales. Preserve the inherited
+tenant, Branch, identity, localization, and release boundaries while implementing
+the product contracts indexed in `specs/README.md`.
 
 Starter v1 is implemented. Add only explicitly requested capabilities, verify
 them end to end, and leave the repository working. Deferred infrastructure and
@@ -133,7 +135,7 @@ The `ASSETS` binding is declared and typed but currently unused.
 ## Database
 
 Cloudflare D1 accessed through Drizzle ORM. Binding `DB` in all three
-environments. The top-level configuration preserves local `saas-template-db`;
+environments. The top-level configuration preserves local `controlwash-db`;
 `env.dev` and `env.production` have distinct cloud databases, Workers and domains.
 
 ```
@@ -217,10 +219,11 @@ separate on purpose.
   an equivalent. Those files are generated — re-running `shadcn add` overwrites
   local edits, so wrap rather than modify them.
 - Reuse `PageContainer` / `PageHeader` instead of re-implementing page chrome.
-- The starter is intentionally unbranded. Do not add project colors, logos or
-  marketing design.
+- Product UI follows `specs/18-product-frontend-and-design.md`. Keep branding
+  restrained and operational screens mobile-first.
 - Do not add a global state library (Redux, Zustand, TanStack Query, …) without a
-  demonstrated need, and do not add business features to the starter.
+  demonstrated need. Add domain behavior only when its canonical specification
+  and acceptance criteria are updated with the implementation.
 
 ### Authentication UI
 

@@ -1,12 +1,15 @@
-# SaaS Starter Specifications
+# ControlWash Specifications
 
 This is the single specification structure for the project: one document per
 module, combining behavior, rules, source references and acceptance checks.
 Numbers are a reading order, not delivery phases or a list of unfinished tasks.
 
-Starter v1 is implemented. The [verification record](VERIFICATION.md) contains
-dated test results and release limitations; it is evidence, not another feature
-specification. Production deployment remains a separate operation.
+Inherited modules 00–09 are implemented. ControlWash modules 10–20 define the
+approved MVP; modules 10 and 14 now explicitly identify their implemented
+foundation and remaining target behavior. Other domain modules remain planning,
+not implementation claims. The
+[verification record](VERIFICATION.md) contains dated execution evidence and
+release limitations; production deployment remains a separate operation.
 
 ## Modules
 
@@ -22,12 +25,23 @@ specification. Production deployment remains a separate operation.
 | [07 — Member Management](07-member-management.md) | Directory, identity reuse, setup, Owner delegation, all/selected Branches and company-only deactivation/reactivation. | `src/worker/tenant/members.ts`, Member UI, `test/members.test.ts`, `test/access-controls.test.ts` |
 | [08 — HTTP and Release Boundaries](08-http-and-release-boundaries.md) | Request validation, disabled bypass routes, safe errors and template protections. | `src/worker/http.ts`, `src/worker/auth/http-policy.ts`, `test/hardening.test.ts` |
 | [09 — Testing and Operations](09-testing-and-operations.md) | Local/dev/production, guarded commands, test coverage, dependency maintenance and releases. | `wrangler.json`, `scripts/`, `vitest.config.ts`, `test/`, package scripts, generated binding types |
+| [10 — ControlWash Product Domain](10-controlwash-product.md) | Shared vocabulary, scope, seed defaults, lifecycles, and cross-module invariants. | `src/worker/product/setup.ts`, product domain modules |
+| [11 — Customers and Vehicles](11-customers-and-vehicles.md) | Optional customer data, vehicle identity, search, history, privacy, and permissions. | Customer/vehicle API and UI (planned) |
+| [12 — Services and Pricing](12-services-packages-and-pricing.md) | Vehicle types, services, packages, add-ons, Branch prices, snapshots, and overrides. | Catalog/pricing API and UI (planned) |
+| [13 — Wash Tickets and Queue](13-wash-tickets-and-queue.md) | Ticket model, state machine, operational board, timing, assignment, and concurrency. | Wash API and UI (planned) |
+| [14 — Payments, Cash, and Expenses](14-payments-cash-and-expenses.md) | Payment methods, split payments, ledger, expenses, balances, sessions, transfers, and reversals. | Finance API and UI (planned) |
+| [15 — Workers and Commissions](15-workers-and-commissions.md) | Member assignment, simple commission rules, snapshots, and operational estimates. | Worker/commission API and UI (planned) |
+| [16 — Inventory and Retail Sales](16-inventory-and-retail-sales.md) | Items, stock movements, purchases, consumption, transfers, low stock, and quick sales. | Inventory/retail API and UI (planned) |
+| [17 — Dashboard and Reports](17-dashboard-and-reports.md) | Metric definitions, filters, drill-down, redaction, performance, and CSV exports. | Reporting API and UI (planned) |
+| [18 — Product Frontend and Design](18-product-frontend-and-design.md) | Visual direction, information architecture, responsive flows, content, and accessibility. | `src/react-app/` (planned product UI) |
+| [19 — Domain Permissions and Audit](19-domain-permissions-and-audit.md) | Product capabilities, isolation, audit events, HTTP behavior, and security test matrix. | Worker guards/audit/tests (planned) |
+| [20 — Future Integrations](20-future-integrations.md) | WhatsApp, booking, memberships, photos, advanced inventory, payments, and hardware boundaries. | Deferred |
 
 ## How to review the product
 
-Start with module 00 for the overall model. Review modules 03, 04, 06 and 07
-for who can create companies, manage people and access Branches. Review module
-05 for the screens and module 09 for validation and production preparation.
+Start with the [product brief](../PRODUCT_BRIEF.md), module 10, and the domain
+modules 11–18. Review modules 04, 07, and 19 together for authority and isolation.
+Review module 09 before migrations, dependencies, or releases.
 
 Inside each module, acceptance checks describe what must remain true after a
 change. They are not claims that every possible test was performed: actual
@@ -35,12 +49,10 @@ observations, counts and limitations belong to [VERIFICATION.md](VERIFICATION.md
 
 ## Scope boundaries
 
-The starter is closed B2B, with generic `owner`, `admin` and `member` roles.
-It does not implement public signup, self-service company onboarding, invitation
-acceptance, deletion/ownership transfer, Settings beyond language, billing or domain
-features. Deferred infrastructure constraints are kept in
-[module 00](00-product-and-architecture.md#deferred-extension-constraints);
-they do not authorize implementation.
+ControlWash remains closed B2B, with inherited `owner`, `admin`, and `member`
+roles plus explicit product capabilities. Public signup, self-service onboarding,
+billing, accounting, payroll, fiscal invoicing, automated messaging, and the
+advanced features in module 20 are outside MVP.
 
 ## Documentation responsibilities
 
@@ -59,12 +71,7 @@ catalog values are the explicit exception. Language behavior belongs to module
 
 ## Next work
 
-The language implementation, company/access work, final access-boundary fixes
-and supporting guides are integrated into `main`; see the
-[verification record](VERIFICATION.md) for commit IDs and checks. No push or
-deployment was performed. Specifications and
-`PROJECT_SPEC.md` intentionally remain uncommitted; a Git clone will not include
-these untracked files.
-
-To build the first real SaaS, define its business domain and follow
-[Creating a real SaaS](09-testing-and-operations.md#creating-a-real-saas).
+Follow [the delivery plan](../planning/DELIVERY_PLAN.md), beginning with product
+settings, tenant-safe domain primitives, and catalog/vehicle intake. Do not claim
+a planned domain module as implemented until its code, migrations, tests,
+translations, acceptance criteria, and verification evidence agree.

@@ -1,6 +1,13 @@
-# SaaS Template
+# ControlWash
 
-Reusable base template for future SaaS projects.
+Mobile-first operational control for car and motorcycle washes: wash queue,
+payments, expenses, workers, lightweight inventory, and retail sales.
+
+ControlWash is an incremental MVP built on the implemented SaaS foundation. Its
+first verified product slice covers operating settings, deterministic catalogs
+and configurable payment methods; the remaining domain modules are specified but
+not yet completed. ControlWash is the selected product name; trademark and domain
+clearance remain separate launch tasks.
 
 **Stack:** React + Vite + TypeScript + Hono on Cloudflare Workers.
 Generated from Cloudflare's official `cloudflare/templates/vite-react-template`.
@@ -8,7 +15,10 @@ Generated from Cloudflare's official `cloudflare/templates/vite-react-template`.
 ## Project documentation
 
 - [Specifications](specs/README.md) — the single module-by-module reference for behavior, rules and acceptance checks
-- [Project overview](PROJECT_SPEC.md) — a short introduction to the starter
+- [Product brief](PRODUCT_BRIEF.md) — audience, promise, MVP, exclusions, and success measures
+- [Competitive research](COMPETITIVE_RESEARCH.md) — products reviewed and MVP implications
+- [Project overview](PROJECT_SPEC.md) — architecture and product status
+- [Delivery planning](planning/README.md) — decisions, user stories, and increments
 - [Agent guidance](CLAUDE.md) — repository rules for coding agents
 - [Verification record](specs/VERIFICATION.md) — dated checks and release limitations
 
@@ -48,6 +58,10 @@ served by Vite. In production, `wrangler.json` points the Worker at
 | GET    | `/api/account/locale`                 | Personal preference and validated active-company language |
 | PATCH  | `/api/account/locale`                 | Save/reset the signed-in user's language only |
 | PATCH  | `/api/company/locale`                 | Owner/admin language setting for the active company only |
+| GET/PATCH | `/api/product/settings`            | Read or manage operating currency, timezone and safety policies |
+| GET/POST/PATCH | `/api/payment-methods`        | List and manage plain payment-method labels |
+| GET    | `/api/expense-categories`             | List seeded Organization expense categories |
+| GET    | `/api/vehicle-types`                  | List seeded Organization vehicle types |
 | GET    | `/api/members`                        | Owner/admin-only directory in the active Organization |
 | POST   | `/api/members`                        | Provision/reuse an employee with supported role and Branches |
 | PATCH  | `/api/members/:membershipId`          | Update a manageable employee's role and exact Branch scope |
@@ -96,9 +110,9 @@ is local; `env.dev` and `env.production` are the two deployed environments.
 
 | Environment | URL | Worker | Database | Email |
 | --- | --- | --- | --- | --- |
-| Local | `http://localhost:5173` | Local runtime, not deployed | Local D1 state, original `saas-template-db` identity | Simulated |
-| Dev | Your `https://dev.<domain>` | `saas-template-dev` | Separate `saas-template-dev-db` in Cloudflare | Real sending, explicit test-recipient allowlist |
-| Production | Your `https://app.<domain>` | `saas-template-production` | Separate `saas-template-production-db` in Cloudflare | Real sending |
+| Local | `http://localhost:5173` | Local runtime, not deployed | Local D1 state, `controlwash-db` identity | Simulated |
+| Dev | Your `https://dev.<domain>` | `controlwash-dev` | Separate `controlwash-dev-db` in Cloudflare | Real sending, explicit test-recipient allowlist |
+| Production | Your `https://app.<domain>` | `controlwash-production` | Separate `controlwash-production-db` in Cloudflare | Real sending |
 
 The remote names are defaults to rename in each cloned SaaS. Tracked remote D1
 IDs, custom domains and dev recipients are intentionally non-working examples.
@@ -177,7 +191,7 @@ Client-side routing uses React Router, with three route groups:
 | ----- | ------ | ------ |
 | Public/auth | `/`, `/login`, `/verify-email`, `/forgot-password`, `/reset-password`, `/setup-account`, `/no-company` | Implemented |
 | Platform | `/platform`, `/platform/organizations/new` | Implemented; platform-admin UX guard plus server authorization |
-| Application | `/app/dashboard`, `/app/branches`, `/app/no-branch-access`, `/app/members`, `/app/settings` | Branch/Member management, workspace summary and personal/company language settings |
+| Application | `/app/dashboard`, `/app/branches`, `/app/no-branch-access`, `/app/members`, `/app/wash-setup`, `/app/settings` | Branch/Team management, wash-business setup, workspace summary and language settings |
 | Redirected | `/register`, `/onboarding` | No public signup or self-service company onboarding |
 
 Invitation acceptance is not exposed: its placeholder page and route were removed.
@@ -192,8 +206,8 @@ login. Local email is always simulated by the supported scripts, so messages app
 `.wrangler/tmp/email/` instead of being delivered.
 
 Styling is Tailwind CSS v4 with shadcn/ui components in
-`src/react-app/components/ui`. The starter ships deliberately unbranded so each
-SaaS can apply its own identity.
+`src/react-app/components/ui`. Product implementation must follow the mobile-first
+interaction and visual contract in `specs/18-product-frontend-and-design.md`.
 
 ## Provisioning
 
@@ -418,8 +432,13 @@ deployed to either remote environment.
 
 ## Current status
 
-Starter v1 is implemented. The quality gate includes typecheck, lint, Node and
-Workers/D1 tests, and all three environment builds/deployment dry runs.
+Starter v1 is implemented. The first ControlWash product slice now includes
+Organization operating settings, idempotent defaults for Cash, expense
+categories and vehicle types, configurable payment-method labels, guarded APIs,
+a responsive bilingual setup screen and tenant-isolation tests. Customers,
+services, wash tickets, financial movements, expenses, inventory, retail sales
+and reporting remain planned work. The quality gate includes typecheck, lint,
+Node and Workers/D1 tests, and all three environment builds/deployment dry runs.
 See [the dated verification record](specs/VERIFICATION.md) for results, manual
 checks and dependency-audit results. The 2026-09-02 dependency remediation leaves
 both the full and production-only audits at zero reported vulnerabilities.
@@ -533,8 +552,8 @@ Cloudflare resources and belong to an explicitly authorized release/setup:
    them, use your new names instead:
 
    ```bash
-   npx wrangler d1 create saas-template-dev-db
-   npx wrangler d1 create saas-template-production-db
+   npx wrangler d1 create controlwash-dev-db
+   npx wrangler d1 create controlwash-production-db
    ```
 
 4. Copy each returned UUID into the corresponding environment's `database_id`.
