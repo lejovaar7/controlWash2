@@ -17,6 +17,14 @@ import { SettingsPage } from "@/pages/SettingsPage";
 import { SetupAccountPage } from "@/pages/SetupAccountPage";
 import { VerifyEmailPage } from "@/pages/VerifyEmailPage";
 import { ProductSetupPage } from "@/pages/ProductSetupPage";
+import { QueuePage } from "@/pages/QueuePage";
+import { FinancePage } from "@/pages/FinancePage";
+import { InventoryPage } from "@/pages/InventoryPage";
+import { RetailSalesPage } from "@/pages/RetailSalesPage";
+import { CustomersVehiclesPage } from "@/pages/CustomersVehiclesPage";
+import { WorkersPage } from "@/pages/WorkersPage";
+import { ServicesPage } from "@/pages/ServicesPage";
+import { ReportsPage } from "@/pages/ReportsPage";
 
 export const router = createBrowserRouter([
 	{
@@ -51,6 +59,14 @@ export const router = createBrowserRouter([
 		children: [
 			{ index: true, element: <Navigate to="/app/dashboard" replace /> },
 			{ path: "dashboard", element: <DashboardPage /> },
+			{ path: "queue", element: <QueuePage /> },
+			{ path: "cash", element: <FinancePage /> },
+			{ path: "inventory", element: <InventoryPage /> },
+			{ path: "sales", element: <RetailSalesPage /> },
+			{ path: "customers", element: <CustomersVehiclesPage /> },
+			{ path: "workers", element: <WorkersPage /> },
+			{ path: "services", element: <ServicesPage /> },
+			{ path: "reports", element: <ReportsPage /> },
 			{ path: "wash-setup", element: <ProductSetupPage /> },
 			{ path: "branches", element: <BranchesPage /> },
 			{ path: "no-branch-access", element: <NoBranchAccessPage /> },

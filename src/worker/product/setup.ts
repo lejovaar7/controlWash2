@@ -26,7 +26,7 @@ export async function ensureProductDefaults(env: Env, tenant: TenantContext) {
 	const db = getTenantDb(env, tenant.organizationId);
 	await db.batch([
 		db.insert(productSettings).values({ organizationId: tenant.organizationId, updatedByUserId: tenant.userId }).onConflictDoNothing(),
-		db.insert(paymentMethod).values({ id: crypto.randomUUID(), organizationId: tenant.organizationId, name: "Cash", normalizedName: "cash", kind: "cash", systemKey: "cash", displayOrder: 0, createdByUserId: tenant.userId }).onConflictDoNothing(),
+		db.insert(paymentMethod).values({ id: crypto.randomUUID(), organizationId: tenant.organizationId, name: "Cash", normalizedName: "cash", systemKey: "cash", displayOrder: 0, createdByUserId: tenant.userId }).onConflictDoNothing(),
 		...expenseDefaults.map(([systemKey, name], displayOrder) => db.insert(expenseCategory).values({ id: crypto.randomUUID(), organizationId: tenant.organizationId, name, normalizedName: normalizeName(name), systemKey, displayOrder, createdByUserId: tenant.userId }).onConflictDoNothing()),
 		...vehicleDefaults.map(([systemKey, name], displayOrder) => db.insert(vehicleType).values({ id: crypto.randomUUID(), organizationId: tenant.organizationId, name, normalizedName: normalizeName(name), systemKey, displayOrder, createdByUserId: tenant.userId }).onConflictDoNothing()),
 	]);
@@ -91,39 +91,33 @@ function readMethodName(value: unknown) {
 	return name;
 }
 
-function readMethodKind(value: unknown) {
-	const kind = value === undefined ? "other" : String(value);
-	if (!["cash", "wallet", "bank", "card", "other"].includes(kind)) throw new RequestError(400, "INVALID_INPUT");
-	return kind;
-}
-
 export async function createPaymentMethod(env: Env, request: Request, body: Record<string, unknown>) {
 	const tenant = await requireTenant(env, request);
 	requireProductAdmin(tenant);
 	await ensureProductDefaults(env, tenant);
+	if (Object.keys(body).some((key) => key !== "name")) throw new RequestError(400, "INVALID_INPUT");
 	const name = readMethodName(body.name);
 	const normalizedName = normalizeName(name);
-	const kind = readMethodKind(body.kind);
 	const db = getTenantDb(env, tenant.organizationId);
 	const [existing] = await db.select({ id: paymentMethod.id }).from(paymentMethod).where(and(eq(paymentMethod.organizationId, tenant.organizationId), eq(paymentMethod.normalizedName, normalizedName), eq(paymentMethod.isActive, true))).limit(1);
 	if (existing) throw new RequestError(409, "NAME_ALREADY_EXISTS");
 	const current = await db.select({ order: paymentMethod.displayOrder }).from(paymentMethod).where(eq(paymentMethod.organizationId, tenant.organizationId)).orderBy(asc(paymentMethod.displayOrder));
 	const id = crypto.randomUUID();
 	const displayOrder = (current.at(-1)?.order ?? -1) + 1;
-	await db.insert(paymentMethod).values({ id, organizationId: tenant.organizationId, name, normalizedName, kind, displayOrder, createdByUserId: tenant.userId });
-	return { id, name, kind, systemKey: null, displayOrder, isActive: true };
+	await db.insert(paymentMethod).values({ id, organizationId: tenant.organizationId, name, normalizedName, displayOrder, createdByUserId: tenant.userId });
+	return { id, name, systemKey: null, displayOrder, isActive: true };
 }
 
 export async function updatePaymentMethod(env: Env, request: Request, id: string, body: Record<string, unknown>) {
 	const tenant = await requireTenant(env, request);
 	requireProductAdmin(tenant);
 	await ensureProductDefaults(env, tenant);
+	if (Object.keys(body).some((key) => !["name", "isActive"].includes(key))) throw new RequestError(400, "INVALID_INPUT");
 	const db = getTenantDb(env, tenant.organizationId);
 	const [current] = await db.select().from(paymentMethod).where(and(eq(paymentMethod.id, id), eq(paymentMethod.organizationId, tenant.organizationId))).limit(1);
 	if (!current) throw new AuthError(404, "RESOURCE_NOT_FOUND");
 	const name = body.name === undefined ? current.name : readMethodName(body.name);
 	const normalizedName = normalizeName(name);
-	const kind = body.kind === undefined ? current.kind : readMethodKind(body.kind);
 	const isActive = body.isActive === undefined ? current.isActive : body.isActive;
 	if (typeof isActive !== "boolean") throw new RequestError(400, "INVALID_INPUT");
 	if (isActive) {
@@ -133,8 +127,8 @@ export async function updatePaymentMethod(env: Env, request: Request, id: string
 		const active = await db.select({ id: paymentMethod.id }).from(paymentMethod).where(and(eq(paymentMethod.organizationId, tenant.organizationId), eq(paymentMethod.isActive, true), ne(paymentMethod.id, id))).limit(1);
 		if (!active.length) throw new RequestError(409, "PAYMENT_METHOD_REQUIRED");
 	}
-	await db.update(paymentMethod).set({ name, normalizedName, kind, isActive, updatedAt: new Date() }).where(and(eq(paymentMethod.id, id), eq(paymentMethod.organizationId, tenant.organizationId)));
-	return { id, name, kind, systemKey: current.systemKey, displayOrder: current.displayOrder, isActive };
+	await db.update(paymentMethod).set({ name, normalizedName, isActive, updatedAt: new Date() }).where(and(eq(paymentMethod.id, id), eq(paymentMethod.organizationId, tenant.organizationId)));
+	return { id, name, systemKey: current.systemKey, displayOrder: current.displayOrder, isActive };
 }
 
 export async function listExpenseCategories(env: Env, request: Request) {
@@ -148,3 +142,25 @@ export async function listVehicleTypes(env: Env, request: Request) {
 	await ensureProductDefaults(env, tenant);
 	return { vehicleTypes: await getTenantDb(env, tenant.organizationId).select().from(vehicleType).where(eq(vehicleType.organizationId, tenant.organizationId)).orderBy(asc(vehicleType.displayOrder)) };
 }
+
+async function createSetupItem(env: Env, request: Request, body: Record<string, unknown>, kind: "vehicle" | "expense") {
+	const tenant = await requireTenant(env, request); requireProductAdmin(tenant); await ensureProductDefaults(env, tenant);
+	if (Object.keys(body).some((key) => key !== "name")) throw new RequestError(400, "INVALID_INPUT");
+	const name = readMethodName(body.name); const id = crypto.randomUUID(); const db = getTenantDb(env, tenant.organizationId);
+	if (kind === "vehicle") await db.insert(vehicleType).values({ id, organizationId: tenant.organizationId, name, normalizedName: normalizeName(name), displayOrder: 100, createdByUserId: tenant.userId });
+	else await db.insert(expenseCategory).values({ id, organizationId: tenant.organizationId, name, normalizedName: normalizeName(name), displayOrder: 100, createdByUserId: tenant.userId });
+	return { id, name, systemKey: null, displayOrder: 100, isActive: true };
+}
+
+async function updateSetupItem(env: Env, request: Request, id: string, body: Record<string, unknown>, kind: "vehicle" | "expense") {
+	const tenant = await requireTenant(env, request); requireProductAdmin(tenant); const table = kind === "vehicle" ? vehicleType : expenseCategory;
+	if (Object.keys(body).some((key) => !["name", "isActive"].includes(key))) throw new RequestError(400, "INVALID_INPUT"); const db = getTenantDb(env, tenant.organizationId);
+	const [current] = await db.select().from(table).where(and(eq(table.id, id), eq(table.organizationId, tenant.organizationId))).limit(1); if (!current) throw new AuthError(404, "RESOURCE_NOT_FOUND");
+	const name = body.name === undefined ? current.name : readMethodName(body.name); const isActive = body.isActive === undefined ? current.isActive : body.isActive; if (typeof isActive !== "boolean") throw new RequestError(400, "INVALID_INPUT");
+	await db.update(table).set({ name, normalizedName: normalizeName(name), isActive, updatedAt: new Date() }).where(and(eq(table.id, id), eq(table.organizationId, tenant.organizationId))); return { ...current, name, isActive };
+}
+
+export const createVehicleType = (env: Env, request: Request, body: Record<string, unknown>) => createSetupItem(env, request, body, "vehicle");
+export const updateVehicleType = (env: Env, request: Request, id: string, body: Record<string, unknown>) => updateSetupItem(env, request, id, body, "vehicle");
+export const createExpenseCategory = (env: Env, request: Request, body: Record<string, unknown>) => createSetupItem(env, request, body, "expense");
+export const updateExpenseCategory = (env: Env, request: Request, id: string, body: Record<string, unknown>) => updateSetupItem(env, request, id, body, "expense");

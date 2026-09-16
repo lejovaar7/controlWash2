@@ -10,7 +10,6 @@ export type ProductSettings = {
 export type PaymentMethod = {
 	id: string;
 	name: string;
-	kind: "cash" | "wallet" | "bank" | "card" | "other";
 	systemKey: string | null;
 	displayOrder: number;
 	isActive: boolean;
@@ -32,7 +31,7 @@ export const productSetupApi = {
 	settings: (organizationId: string) => requestJson<ProductSettings>("/api/product/settings", organizationId),
 	saveSettings: (organizationId: string, input: Omit<ProductSettings, "organizationId" | "canEdit">) => requestJson<ProductSettings>("/api/product/settings", organizationId, { method: "PATCH", body: JSON.stringify(input) }),
 	paymentMethods: (organizationId: string) => requestJson<{ methods: PaymentMethod[]; canEdit: boolean }>("/api/payment-methods", organizationId),
-	createPaymentMethod: (organizationId: string, input: { name: string; kind: PaymentMethod["kind"] }) => requestJson<PaymentMethod>("/api/payment-methods", organizationId, { method: "POST", body: JSON.stringify(input) }),
+	createPaymentMethod: (organizationId: string, input: { name: string }) => requestJson<PaymentMethod>("/api/payment-methods", organizationId, { method: "POST", body: JSON.stringify(input) }),
 	updatePaymentMethod: (organizationId: string, id: string, input: { isActive: boolean }) => requestJson<PaymentMethod>(`/api/payment-methods/${id}`, organizationId, { method: "PATCH", body: JSON.stringify(input) }),
 	expenseCategories: (organizationId: string) => requestJson<{ categories: SetupCatalogItem[] }>("/api/expense-categories", organizationId),
 	vehicleTypes: (organizationId: string) => requestJson<{ vehicleTypes: SetupCatalogItem[] }>("/api/vehicle-types", organizationId),

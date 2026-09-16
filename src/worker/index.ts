@@ -13,7 +13,12 @@ import { listAccessibleBranches } from "./tenant/branch";
 import { listMembers, provisionMember, resendMemberSetup, updateMemberAccess, updateMemberStatus } from "./tenant/members";
 import { listCompanies, selectCompany } from "./tenant/companies";
 import { getLocalePreferences, readRequiredLocale, updateCompanyLocale, updateUserLocale } from "./localization";
-import { createPaymentMethod, getProductSettings, listExpenseCategories, listPaymentMethods, listVehicleTypes, updatePaymentMethod, updateProductSettings } from "./product/setup";
+import { createExpenseCategory, createPaymentMethod, createVehicleType, getProductSettings, listExpenseCategories, listPaymentMethods, listVehicleTypes, updateExpenseCategory, updatePaymentMethod, updateProductSettings, updateVehicleType } from "./product/setup";
+import { createCommissionRule, createCustomer, createService, createVehicle, createWorker, getVehicle, listCustomers, listServices, listVehicles, listWorkers, replaceServicePrices, updateCommissionRule, updateCustomer, updateService, updateVehicle, updateWorker } from "./product/catalogs";
+import { assignWorkers, cancelTicket, createTicket, getTicket, getVehicleTicketHistory, listTickets, transitionTicket, updateTicket } from "./product/tickets";
+import { closeCashSession, createAdjustment, createExpense, createTransfer, getExpense, getFinancialBalances, listCashSessions, listExpenses, listFinancialMovements, listTransfers, openCashSession, recordTicketPayment, reverseExpense, reversePayment, reverseTransfer } from "./product/finance";
+import { createItem, createPurchase, createSale, createStockMovement, createStockTransfer, getItem, getPurchase, getSale, listItems, listPurchases, listSales, listStock, listStockTransfers, reversePurchase, reverseSale, reverseStockTransfer, updateItem } from "./product/inventory";
+import { exportReport, getCommissionReport, getDashboard, getFinanceReport, getInventoryReport, getSalesReport, getWashReport } from "./product/reporting";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -70,7 +75,82 @@ app.get("/api/payment-methods", async (c) => c.json(await listPaymentMethods(c.e
 app.post("/api/payment-methods", async (c) => c.json(await createPaymentMethod(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
 app.patch("/api/payment-methods/:id", async (c) => c.json(await updatePaymentMethod(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
 app.get("/api/expense-categories", async (c) => c.json(await listExpenseCategories(c.env, c.req.raw)));
+app.post("/api/expense-categories", async (c) => c.json(await createExpenseCategory(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.patch("/api/expense-categories/:id", async (c) => c.json(await updateExpenseCategory(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
 app.get("/api/vehicle-types", async (c) => c.json(await listVehicleTypes(c.env, c.req.raw)));
+app.post("/api/vehicle-types", async (c) => c.json(await createVehicleType(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.patch("/api/vehicle-types/:id", async (c) => c.json(await updateVehicleType(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
+
+app.get("/api/customers", async (c) => c.json(await listCustomers(c.env, c.req.raw)));
+app.post("/api/customers", async (c) => c.json(await createCustomer(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.patch("/api/customers/:id", async (c) => c.json(await updateCustomer(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
+app.get("/api/vehicles", async (c) => c.json(await listVehicles(c.env, c.req.raw)));
+app.post("/api/vehicles", async (c) => c.json(await createVehicle(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.get("/api/vehicles/:id", async (c) => c.json(await getVehicle(c.env, c.req.raw, c.req.param("id"))));
+app.patch("/api/vehicles/:id", async (c) => c.json(await updateVehicle(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
+app.get("/api/vehicles/:id/tickets", async (c) => c.json(await getVehicleTicketHistory(c.env, c.req.raw, c.req.param("id"))));
+
+app.get("/api/services", async (c) => c.json(await listServices(c.env, c.req.raw)));
+app.post("/api/services", async (c) => c.json(await createService(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.patch("/api/services/:id", async (c) => c.json(await updateService(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
+app.put("/api/services/:id/prices", async (c) => c.json(await replaceServicePrices(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
+app.get("/api/workers", async (c) => c.json(await listWorkers(c.env, c.req.raw)));
+app.post("/api/workers", async (c) => c.json(await createWorker(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.patch("/api/workers/:id", async (c) => c.json(await updateWorker(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
+app.post("/api/commission-rules", async (c) => c.json(await createCommissionRule(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.patch("/api/commission-rules/:id", async (c) => c.json(await updateCommissionRule(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
+
+app.get("/api/wash-tickets", async (c) => c.json(await listTickets(c.env, c.req.raw)));
+app.post("/api/wash-tickets", async (c) => c.json(await createTicket(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.get("/api/wash-tickets/:id", async (c) => c.json(await getTicket(c.env, c.req.raw, c.req.param("id"))));
+app.patch("/api/wash-tickets/:id", async (c) => c.json(await updateTicket(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
+app.post("/api/wash-tickets/:id/transitions", async (c) => c.json(await transitionTicket(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
+app.put("/api/wash-tickets/:id/assignments", async (c) => c.json(await assignWorkers(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
+app.post("/api/wash-tickets/:id/cancel", async (c) => c.json(await cancelTicket(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
+app.post("/api/wash-tickets/:id/payments", async (c) => c.json(await recordTicketPayment(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw)), 201));
+app.post("/api/payments/:id/reverse", async (c) => c.json(await reversePayment(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw)), 201));
+
+app.get("/api/expenses", async (c) => c.json(await listExpenses(c.env, c.req.raw)));
+app.post("/api/expenses", async (c) => c.json(await createExpense(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.get("/api/expenses/:id", async (c) => c.json(await getExpense(c.env, c.req.raw, c.req.param("id"))));
+app.post("/api/expenses/:id/reverse", async (c) => c.json(await reverseExpense(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw)), 201));
+app.post("/api/financial-adjustments", async (c) => c.json(await createAdjustment(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.post("/api/financial-transfers", async (c) => c.json(await createTransfer(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.get("/api/financial-transfers", async (c) => c.json(await listTransfers(c.env, c.req.raw)));
+app.post("/api/financial-transfers/:id/reverse", async (c) => c.json(await reverseTransfer(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw)), 201));
+app.get("/api/financial-movements", async (c) => c.json(await listFinancialMovements(c.env, c.req.raw)));
+app.get("/api/financial-balances", async (c) => c.json(await getFinancialBalances(c.env, c.req.raw)));
+app.get("/api/cash-sessions", async (c) => c.json(await listCashSessions(c.env, c.req.raw)));
+app.post("/api/cash-sessions", async (c) => c.json(await openCashSession(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.post("/api/cash-sessions/:id/close", async (c) => c.json(await closeCashSession(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
+
+app.get("/api/inventory/items", async (c) => c.json(await listItems(c.env, c.req.raw)));
+app.post("/api/inventory/items", async (c) => c.json(await createItem(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.get("/api/inventory/stock", async (c) => c.json(await listStock(c.env, c.req.raw)));
+app.get("/api/inventory/items/:id", async (c) => c.json(await getItem(c.env, c.req.raw, c.req.param("id"))));
+app.patch("/api/inventory/items/:id", async (c) => c.json(await updateItem(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw))));
+app.post("/api/inventory/opening-stock", async (c) => c.json(await createStockMovement(c.env, c.req.raw, await readJsonObject(c.req.raw), "opening"), 201));
+app.post("/api/inventory/usage", async (c) => c.json(await createStockMovement(c.env, c.req.raw, await readJsonObject(c.req.raw), "usage"), 201));
+app.post("/api/inventory/adjustments", async (c) => c.json(await createStockMovement(c.env, c.req.raw, await readJsonObject(c.req.raw), "adjustment"), 201));
+app.get("/api/purchases", async (c) => c.json(await listPurchases(c.env, c.req.raw)));
+app.post("/api/purchases", async (c) => c.json(await createPurchase(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.get("/api/purchases/:id", async (c) => c.json(await getPurchase(c.env, c.req.raw, c.req.param("id"))));
+app.post("/api/purchases/:id/reverse", async (c) => c.json(await reversePurchase(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw)), 201));
+app.get("/api/retail-sales", async (c) => c.json(await listSales(c.env, c.req.raw)));
+app.post("/api/retail-sales", async (c) => c.json(await createSale(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.get("/api/retail-sales/:id", async (c) => c.json(await getSale(c.env, c.req.raw, c.req.param("id"))));
+app.post("/api/retail-sales/:id/reverse", async (c) => c.json(await reverseSale(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw)), 201));
+app.post("/api/stock-transfers", async (c) => c.json(await createStockTransfer(c.env, c.req.raw, await readJsonObject(c.req.raw)), 201));
+app.get("/api/stock-transfers", async (c) => c.json(await listStockTransfers(c.env, c.req.raw)));
+app.post("/api/stock-transfers/:id/reverse", async (c) => c.json(await reverseStockTransfer(c.env, c.req.raw, c.req.param("id"), await readJsonObject(c.req.raw)), 201));
+
+app.get("/api/reports/dashboard", async (c) => c.json(await getDashboard(c.env, c.req.raw)));
+app.get("/api/reports/washes", async (c) => c.json(await getWashReport(c.env, c.req.raw)));
+app.get("/api/reports/finance", async (c) => c.json(await getFinanceReport(c.env, c.req.raw)));
+app.get("/api/reports/inventory", async (c) => c.json(await getInventoryReport(c.env, c.req.raw)));
+app.get("/api/reports/retail-sales", async (c) => c.json(await getSalesReport(c.env, c.req.raw)));
+app.get("/api/reports/commissions", async (c) => c.json(await getCommissionReport(c.env, c.req.raw)));
+app.get("/api/reports/:report/export", async (c) => c.body(await exportReport(c.env, c.req.raw, c.req.param("report")), 200, { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": `attachment; filename="controlwash-${c.req.param("report")}.csv"` }));
 
 /** Tenant-scoped administration; never exposes platform roles. */
 app.get("/api/members", async (c) => {
@@ -124,6 +204,7 @@ app.post("/api/platform/organizations", async (c) => {
 	return c.json({
 		organizationId: result.organizationId,
 		organizationName: result.organizationName,
+		branchName: result.branchName,
 		ownerEmail,
 		setupEmailSent: result.setupEmailSent,
 		setupEmailStatus: result.setupEmailStatus,

@@ -18,8 +18,9 @@ export async function createActor(email: string, platformAdmin = false): Promise
 	return { userId: row.id, email, headers: new Headers({ cookie: response.headers.get("set-cookie")! }) };
 }
 
-export function callApi(path: string, actor?: Actor, body?: unknown, method = body === undefined ? "GET" : "POST") {
+export function callApi(path: string, actor?: Actor, body?: unknown, method = body === undefined ? "GET" : "POST", extraHeaders?: HeadersInit) {
 	const headers = new Headers(actor?.headers);
+	if (extraHeaders) new Headers(extraHeaders).forEach((value, key) => headers.set(key, value));
 	headers.set("Content-Type", "application/json");
 	headers.set("Origin", "http://localhost:5173");
 	return worker.fetch(new Request(`http://localhost:5173${path}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) }), env, createExecutionContext());

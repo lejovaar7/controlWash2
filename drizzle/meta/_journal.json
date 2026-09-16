@@ -64,6 +64,27 @@
       "when": 1789491249828,
       "tag": "0008_loose_killraven",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1789501015457,
+      "tag": "0009_perpetual_lockjaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1789501201551,
+      "tag": "0010_localize_default_branch",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1789527327512,
+      "tag": "0011_dusty_red_shift",
+      "breakpoints": true
     }
   ]
 }

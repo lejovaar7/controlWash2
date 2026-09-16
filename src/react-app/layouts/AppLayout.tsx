@@ -1,5 +1,5 @@
 import { useT } from "@/lib/i18n";
-import { Building2, LayoutDashboard, Settings, SlidersHorizontal, Users } from "lucide-react";
+import { Building2, CarFront, ChartNoAxesCombined, HandCoins, LayoutDashboard, Package, Settings, ShoppingBag, SlidersHorizontal, SprayCan, Users, UsersRound } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Navigate, NavLink, Outlet, useLocation } from "react-router";
 import { BranchSwitcher } from "@/components/branch-switcher";
@@ -21,9 +21,17 @@ import { isPlatformAdminRole } from "@/lib/session-routing";
 
 const navigation = [
 	{ to: "/app/dashboard", label: "Dashboard", icon: LayoutDashboard, manage: false, fullScope: false },
+	{ to: "/app/queue", label: "Wash queue", icon: CarFront, manage: false, fullScope: false },
+	{ to: "/app/cash", label: "Cash", icon: HandCoins, manage: false, fullScope: false },
+	{ to: "/app/inventory", label: "Inventory", icon: Package, manage: false, fullScope: false },
+	{ to: "/app/sales", label: "Sales", icon: ShoppingBag, manage: false, fullScope: false },
+	{ to: "/app/customers", label: "Customers", icon: UsersRound, manage: false, fullScope: false },
+	{ to: "/app/workers", label: "Workers", icon: SprayCan, manage: true, fullScope: false },
+	{ to: "/app/reports", label: "Reports", icon: ChartNoAxesCombined, manage: true, fullScope: false },
+	{ to: "/app/services", label: "Services & prices", icon: SlidersHorizontal, manage: true, fullScope: false },
 	{ to: "/app/wash-setup", label: "Wash setup", icon: SlidersHorizontal, manage: true, fullScope: true },
 	{ to: "/app/branches", label: "Branches", icon: Building2, manage: true, fullScope: false },
-	{ to: "/app/members", label: "Members", icon: Users, manage: true, fullScope: false },
+	{ to: "/app/members", label: "Users & permissions", icon: Users, manage: true, fullScope: false },
 	{ to: "/app/settings", label: "Settings", icon: Settings, manage: false, fullScope: false },
 ] as const;
 
@@ -39,7 +47,7 @@ function Navigation({
 	const t = useT();
 	return (
 		<nav aria-label={t("Main")} className={className}>
-			<ul className="flex flex-wrap gap-1 md:flex-col">
+			<ul className="flex gap-1 overflow-x-auto pb-1 md:flex-col md:overflow-visible md:pb-0">
 				{navigation
 					.filter((item) => (showManagement || !item.manage) && (!item.fullScope || fullScope))
 					.map(({ to, label, icon: Icon }) => (
@@ -48,7 +56,7 @@ function Navigation({
 							to={to}
 							className={({ isActive }) =>
 								cn(
-									"flex items-center gap-2 rounded-md px-3 py-2 text-sm",
+									"flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm",
 									"hover:bg-accent hover:text-accent-foreground",
 									isActive
 										? "bg-accent text-accent-foreground font-medium"

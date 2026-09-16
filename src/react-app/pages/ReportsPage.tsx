@@ -1,0 +1,11 @@
+import { useEffect, useState } from "react";
+import { Download } from "lucide-react";
+import { PageContainer, PageHeader } from "@/components/page";
+import { Button } from "@/components/ui/button";
+import { useAppShell } from "@/hooks/use-app-shell";
+import { formatMoney, washApi } from "@/lib/controlwash";
+import { useI18n } from "@/lib/i18n";
+
+type Report = { incomeMinor: number; outflowMinor: number; netMinor: number; movements: { id: string; description: string; amountMinor: number; createdAt: string }[] };
+export function ReportsPage() { const { t, locale } = useI18n(); const shell = useAppShell(); const [report, setReport] = useState<Report | null>(null); const [failed, setFailed] = useState(false); useEffect(() => { washApi.report<Report>(shell.organizationId, "finance").then(setReport).catch(() => setFailed(true)); }, [shell.organizationId]); const currency = "COP"; return <PageContainer className="space-y-6"><PageHeader title={t("Reports")} description={t("Review washes, cash flow, stock, sales and commission estimates.")} actions={<Button variant="outline" nativeButton={false} render={<a href="/api/reports/finance/export"><Download className="size-4" />{t("Export CSV")}</a>} />} />{failed ? <p role="alert">{t("We could not load reports.")}</p> : null}{report ? <><div className="grid gap-3 sm:grid-cols-3"><Metric label={t("Income")} value={formatMoney(report.incomeMinor, currency, locale)} /><Metric label={t("Outflows")} value={formatMoney(report.outflowMinor, currency, locale)} /><Metric label={t("Net recorded cash flow")} value={formatMoney(report.netMinor, currency, locale)} /></div><div className="rounded-2xl border">{report.movements.slice(0, 100).map((row) => <div key={row.id} className="flex justify-between gap-4 border-b p-4 last:border-b-0"><div><p>{row.description}</p><p className="text-sm text-muted-foreground">{new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(row.createdAt))}</p></div><strong>{formatMoney(row.amountMinor, currency, locale)}</strong></div>)}</div></> : <p role="status">{t("Loading reports…")}</p>}</PageContainer>; }
+function Metric({ label, value }: { label: string; value: string }) { return <div className="rounded-2xl border p-4"><p className="text-sm text-muted-foreground">{label}</p><p className="mt-1 text-2xl font-semibold">{value}</p></div>; }

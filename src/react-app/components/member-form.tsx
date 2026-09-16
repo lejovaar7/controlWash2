@@ -46,12 +46,12 @@ export function MemberForm({ branches, member, allBranchesAllowed, canAppointAdm
 			if (!response.ok) throw new Error("Could not save access");
 			const result = await response.json() as { setupEmailStatus?: SetupEmailStatus; };
 			onSaved(result.setupEmailStatus);
-		} catch { setError("We could not save this member. Check their role and branches, then try again. Retrying will not create a duplicate member."); }
+		} catch { setError("We could not save this user. Check their role and branches, then try again. Retrying will not create a duplicate user."); }
 		finally { setPending(false); }
 	}
 
-	return <form onSubmit={submit} className="grid gap-4 rounded-lg border p-4" aria-label={member ? t("Edit access for {name}", { name: member.user.name }) : t("Add member")}>
-		<h2 className="break-words font-medium">{member ? t("Edit access: {name}", { name: member.user.name }) : t("Add member")}</h2>
+	return <form onSubmit={submit} className="grid gap-4 rounded-lg border p-4" aria-label={member ? t("Edit access for {name}", { name: member.user.name }) : t("Add user")}>
+		<h2 className="break-words font-medium">{member ? t("Edit access: {name}", { name: member.user.name }) : t("Add user")}</h2>
 		<fieldset disabled={pending} className="grid gap-4">
 			{!member && <>
 				<div className="grid gap-2"><Label htmlFor={`${id}-name`}>{t("Name")}</Label><Input id={`${id}-name`} name="name" autoComplete="name" maxLength={200} autoFocus required /></div>
@@ -60,7 +60,7 @@ export function MemberForm({ branches, member, allBranchesAllowed, canAppointAdm
 			<div className="grid gap-2">
 				<Label htmlFor={`${id}-role`}>{t("Company role")}</Label>
 				<select id={`${id}-role`} autoFocus={Boolean(member)} className="h-10 rounded-md border bg-background px-3 focus-visible:outline-2 focus-visible:outline-ring" value={role} onChange={(event) => setRole(event.target.value as "member" | "admin")}>
-					<option value="member">{t("Member")}</option>{canAppointAdmins && <option value="admin">{t("Admin")}</option>}
+					<option value="member">{t("User")}</option>{canAppointAdmins && <option value="admin">{t("Admin")}</option>}
 				</select>
 			</div>
 			{role === "admin" && allBranchesAllowed && <div className="grid gap-2">
@@ -83,6 +83,6 @@ export function MemberForm({ branches, member, allBranchesAllowed, canAppointAdm
 			{!member && <p className="text-sm text-muted-foreground">{t("New users receive a secure link to choose their own password. Existing accounts keep their sign-in details.")}</p>}
 		</fieldset>
 		{error && <p role="alert" className="text-sm text-destructive">{error ? t(error) : null}</p>}
-		<div className="flex flex-wrap gap-2"><Button type="submit" disabled={pending}>{pending ? t("Saving…") : member ? t("Save access") : t("Add member")}</Button><Button type="button" variant="outline" disabled={pending} onClick={onCancel}>{t("Cancel")}</Button></div>
+		<div className="flex flex-wrap gap-2"><Button type="submit" disabled={pending}>{pending ? t("Saving…") : member ? t("Save access") : t("Add user")}</Button><Button type="button" variant="outline" disabled={pending} onClick={onCancel}>{t("Cancel")}</Button></div>
 	</form>;
 }

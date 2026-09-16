@@ -67,11 +67,18 @@ describe("ControlWash settings and payment methods", () => {
 	});
 
 	it("adds a simple named method and rejects an active duplicate", async () => {
-		const created = await callApi("/api/payment-methods", ownerA, { name: "Nequi", kind: "wallet" });
+		const created = await callApi("/api/payment-methods", ownerA, { name: "Nequi" });
 		expect(created.status).toBe(201);
-		await expect(created.json()).resolves.toMatchObject({ name: "Nequi", kind: "wallet", isActive: true });
-		const duplicate = await callApi("/api/payment-methods", ownerA, { name: " nequi ", kind: "other" });
+		const body = await created.json();
+		expect(body).toEqual(expect.objectContaining({ name: "Nequi", isActive: true }));
+		expect(body).not.toHaveProperty("kind");
+		const duplicate = await callApi("/api/payment-methods", ownerA, { name: " nequi " });
 		expect(duplicate.status).toBe(409);
+	});
+
+	it("rejects payment-method classifications outside the name-only contract", async () => {
+		const response = await callApi("/api/payment-methods", ownerA, { name: "Daviplata", kind: "wallet" });
+		expect(response.status).toBe(400);
 	});
 
 	it("keeps payment method lists tenant-isolated", async () => {
