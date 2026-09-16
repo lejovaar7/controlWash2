@@ -11,7 +11,8 @@ Hono Worker API. It is a reusable starter, not a domain-specific product.
 
 - Closed B2B: users cannot publicly register or create their own company.
 - The platform administrator provisions each company, its first Owner and a
-  Branch named `Main`. The Owner then chooses their own password.
+  initial Branch named `Sede Principal` in Spanish or `Main Branch` in English.
+  The Owner then chooses their own password.
 - Owners/admins provision employees; established accounts can belong to several
   companies without duplicate identities or replaced credentials.
 - The Owner controls which admins may appoint other admins. Admins may cover

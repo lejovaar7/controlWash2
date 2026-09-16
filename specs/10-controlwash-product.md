@@ -1,9 +1,8 @@
 # 10 — ControlWash Product Domain
 
-**Status:** Partially implemented. Organization operating settings and
-idempotent defaults for Cash, vehicle types and expense categories have schema,
-guarded APIs, setup UI and automated tenant-isolation coverage. The transaction
-domains remain target MVP work.
+**Status:** Implemented for the local MVP. Settings, catalogs, transactional
+domains, guarded APIs, bilingual UI, generated migrations and integration
+coverage are present. Remote pilot and production release remain separate.
 
 ## Purpose
 
@@ -75,7 +74,7 @@ User-facing Spanish may use `lavado`, `sede`, `trabajador`, `caja`, `insumo`, an
 - Configuration records: active or inactive.
 - Transaction documents: draft, posted, reversed, or cancelled where applicable.
 - Wash tickets: waiting, in progress, ready, delivered, or cancelled.
-- Members: inherited active/inactive company access plus assignment eligibility.
+- Users: inherited active/inactive company access plus assignment eligibility.
 
 Do not overload one generic `status` interpretation across unrelated entities.
 
@@ -83,7 +82,7 @@ Do not overload one generic `status` interpretation across unrelated entities.
 
 On first product initialization for an Organization:
 
-- create one active payment method named Cash with stable type `cash`;
+- create one active payment method named Cash with stable system key `cash`;
 - create default vehicle types Motorcycle, Car, SUV, and Truck/Pickup, editable
   and deactivatable after setup;
 - create suggested expense categories for wash supplies, retail products,

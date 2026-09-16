@@ -5,6 +5,57 @@ production deployment. The latest repository checkpoint is recorded first; earli
 localization, environment, Starter v1 and dependency-remediation evidence is
 preserved below.
 
+## 2026-09-15: Complete local ControlWash MVP
+
+Implemented modules 10–19 across generated Drizzle schema/migration
+`0011_dusty_red_shift`, guarded Hono APIs, responsive React screens and the typed
+English/Spanish catalog. The finished local flows cover customers/vehicles,
+services and vehicle pricing, wash intake/queue/transitions, full one-method
+payments, expenses, adjustments, same-Branch method transfers, cash sessions,
+worker assignments and percentage commission rules, inventory, purchases,
+consumption, stock transfers, quick sales, reversals, dashboard/reporting and CSV
+exports. Split/partial payments and cross-Branch financial transfers remain
+deferred by product decision.
+
+`npm run db:migrate:local` applied migration 0011 successfully and
+`npm exec -- drizzle-kit check` passed. `npm run check` passed typecheck, lint,
+24 environment/bootstrap tests, two i18n checks and 168 Workers/D1 tests (194
+automated checks total), plus local/dev/production builds and deployment
+dry-runs. Full and production-only npm audits reported zero vulnerabilities;
+`git diff --check` passed. Browser smoke verified English/Spanish public and
+login surfaces and corrected inherited Base UI link semantics.
+
+No remote database, email service, Cloudflare resource or deployment was
+changed. Representative-user pilot acceptance, real dev configuration and
+production authorization remain separate release gates.
+
+## 2026-09-15: Clear users, Branch and payment-method setup
+
+The authenticated-access page now appears as **Users & permissions/Usuarios y
+permisos**, while the existing `/app/members` route, Better Auth membership model
+and APIs remain unchanged. New Spanish companies receive `Sede Principal`; new
+English companies receive `Main Branch`. Migration
+`0010_localize_default_branch` updates only a legacy Branch named exactly `Main`
+when it is the company's sole Branch; custom and multi-Branch data remains
+untouched. The payment-method form keeps Cash/Efectivo by default and asks only
+for the name of each additional method; its
+data model and API do not retain a classification the user never supplied.
+Migration `0009_perpetual_lockjaw` removes the former `kind` column while
+preserving every method's identity, name, ordering, status and audit fields.
+
+The MVP specifications were reconciled with the approved scope: Cash sessions,
+multiple workers, configurable commission rules, stock transfers and linked
+retail sales remain required. Split payments are deferred. Financial transfers
+remain required only between payment methods inside one Branch; cross-Branch
+financial transfers are rejected. Adjustments cover reasoned balance corrections
+but do not replace source-aware expenses, reversals or paired transfers.
+
+`npm exec -- drizzle-kit check`, both local migrations and the complete
+`npm run check` gate passed. The run covered typecheck, lint, 24 environment/
+bootstrap tests, two i18n checks, 161 Workers/D1 tests (187 automated tests
+total), and local/dev/production build and deployment dry-runs. No remote
+database, email, cloud resource or deployment was changed.
+
 ## 2026-09-15: Explicit company language
 
 Removed the application-default choice from company creation and Settings. Every

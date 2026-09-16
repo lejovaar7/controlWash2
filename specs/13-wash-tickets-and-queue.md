@@ -41,7 +41,7 @@ Rules:
 ## Payment status
 
 Derived values are `unpaid`, `partial`, `paid`, and `refunded`. They are computed
-from non-reversed payment allocations against the authoritative ticket total and
+from non-reversed payments against the authoritative ticket total and
 are not freely editable.
 
 The Organization setting chooses whether delivery blocks an unpaid remainder or
@@ -95,7 +95,7 @@ effects.
 - Creation computes totals on the server and ignores manipulated client totals.
 - Invalid and stale transitions return a safe conflict with no partial effects.
 - Queue never includes inaccessible Branch or Organization records.
-- Payment status always reconciles to active payment allocations.
+- Payment status always reconciles to active payments.
 - Cancellation cannot leave active income or stock effects attached unnoticed.
 - Timing metrics use stored transition timestamps, not client clocks.
 - Mobile, keyboard, loading, empty, error, and refresh states are usable.

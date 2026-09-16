@@ -80,12 +80,12 @@ effective time, type, and reason/notes. The stored movement is negative.
 
 A sale may link to one wash ticket or stand alone. It has draft, posted, reversed,
 or cancelled state; Branch, optional customer, line snapshots, currency, totals,
-payment status/allocations, actor, and version.
+payment status/reference, actor, and version.
 
 Posting a fully paid sale atomically:
 
 - writes negative stock movements for tracked products;
-- writes positive `retail_income` movements for payment allocations;
+- writes one positive `retail_income` movement for the selected payment method;
 - marks the sale posted and refreshes the linked ticket total/payment summary if
   the UI presents a combined checkout.
 

@@ -54,6 +54,11 @@ fees, refunds, settlement/reconciliation, and secret isolation. Electronic/fisca
 invoicing depends on target-country rules and must remain distinct from the
 operational ticket and payment method labels.
 
+Split payments and cross-Branch financial transfers are also deferred. They
+require explicit allocation and authorization contracts before being added; the
+MVP records each payment with one method and permits a balance transfer only
+between two methods in the same Branch.
+
 ## Hardware and machine integration
 
 License-plate recognition, POS peripherals, printers, gates, and tunnel equipment

@@ -19,15 +19,16 @@ and delivery without overriding specifications.
 
 ## Product at a glance
 
-- The platform operator provisions a wash company, first Owner, and Main Branch.
+- The platform operator provisions a wash company, first Owner, and its initial
+  Branch: `Sede Principal` in Spanish or `Main Branch` in English.
 - Owners/admins configure vehicle types, services, prices, payment methods,
   expense categories, items, and worker commission rules.
 - Operators receive a vehicle without requiring customer details, move it through
-  Waiting → In progress → Ready → Delivered, and collect split payments.
+  Waiting → In progress → Ready → Delivered, and collect a payment.
 - Payment methods are simple Organization-defined labels. Cash exists by default;
   Nequi, Bancolombia, or others can be added without bank integration.
-- Opening balances, income, expenses, adjustments, transfers, and reversals form
-  an immutable operational financial ledger.
+- Opening balances, income, expenses, adjustments, same-Branch transfers between
+  payment methods, and reversals form an immutable operational financial ledger.
 - Purchases connect one financial outflow to stock increases. Retail sales connect
   payment income to stock decreases and may be standalone or ticket-linked.
 - Supplies support opening stock, manual consumption, waste, adjustments,
@@ -54,12 +55,12 @@ remain isolated and remote release actions require separate authorization.
 
 ## Current state
 
-- Implemented: inherited authentication, provisioning, company/Branch/member
-  access, language, environment safety and base application shell; plus product
-  settings, deterministic seed catalogs and payment-method configuration.
-- Partially implemented: modules 10 and 14. The other ControlWash domain modules
-  remain specifications rather than implementation claims.
-- No product Git remote, cloud resources, remote migration, deployment, or push
-  has been created as part of product initialization.
+- Implemented locally: inherited authentication, provisioning, company/Branch/
+  user access, localization and release boundaries plus all ControlWash MVP
+  modules 10–19, their responsive bilingual screens, generated migrations and
+  integration tests.
+- Deferred: split payments, cross-Branch financial transfers and integrations in
+  module 20. Remote resources, migration, deployment and pilot acceptance remain
+  separate release work.
 - `ControlWash` is the selected name; trademark/domain/social clearance remains a
   separate launch task.

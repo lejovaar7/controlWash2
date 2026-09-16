@@ -6,7 +6,8 @@ and must be executed with representative owner, admin, and operator accounts.
 ## Scenario 1 — First company setup
 
 1. Platform admin provisions a company and Owner.
-2. Owner completes secure account setup and enters Main Branch.
+2. Owner completes secure account setup and enters `Sede Principal` for a
+   Spanish company or `Main Branch` for an English company.
 3. Cash exists exactly once; default vehicle types/categories are present.
 4. Owner sets currency/timezone, creates Nequi, services, prices, workers, and
    initial items.
@@ -24,15 +25,17 @@ data appears.
 Expected: each intake is correctly priced; common intake median is at most 30
 seconds; timing and history are correct; stale action has no partial effect.
 
-## Scenario 3 — Split payment and balances
+## Scenario 3 — Payment, method transfer, and balances
 
 1. Record an opening Cash balance of 100,000 minor units in test currency.
-2. Collect a 30,000 ticket using 20,000 Cash and 10,000 Nequi.
-3. View method balances and ticket payment status.
+2. Collect a 30,000 ticket using Cash.
+3. Transfer 10,000 from Cash to Nequi inside the same Branch, then view method
+   balances and ticket payment status.
 4. Retry the payment request with the same key and then a conflicting payload.
 
-Expected: one posting only; Cash is 120,000 plus any other controlled fixtures,
-Nequi is 10,000; conflicting key reuse is rejected.
+Expected: one payment posting and one linked transfer only; Cash is 120,000 plus
+any other controlled fixtures, Nequi is 10,000; the transfer does not change
+income, and conflicting key reuse is rejected.
 
 ## Scenario 4 — Ordinary expense and correction
 
@@ -56,7 +59,8 @@ nets both effects to zero without deleting evidence.
 ## Scenario 6 — Quick sale with and without a wash
 
 1. Sell two waters as a standalone Cash quick sale.
-2. Add one air freshener to a wash and collect a split combined checkout.
+2. Add one air freshener to a wash and collect the combined checkout with one
+   payment method.
 3. Verify retail revenue is counted once.
 4. Reverse the standalone sale.
 

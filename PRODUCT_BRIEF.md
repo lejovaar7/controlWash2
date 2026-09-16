@@ -38,8 +38,8 @@ are not automatic bank reconciliations.
 
 1. An operator can receive a vehicle, price the work, and place it in the queue.
 2. The team can move the ticket through its operational states without ambiguity.
-3. An authorized user can collect one or split payments using company-defined
-   methods such as Cash, Nequi, or Bancolombia.
+3. An authorized user can collect a payment using one company-defined method
+   such as Cash, Nequi, or Bancolombia.
 4. The owner can explain the recorded balance of each payment method from an
    immutable movement history.
 5. Purchases and other expenses reduce the corresponding recorded balance.
@@ -68,8 +68,9 @@ are not automatic bank reconciliations.
 - Customers and vehicles.
 - Services, packages, add-ons, and Branch pricing.
 - Wash tickets and operational queue.
-- Payment methods, cash sessions, expenses, transfers, and adjustments.
-- Workers and simple commissions.
+- Payment methods, opening balances, cash sessions, expenses, same-Branch
+  transfers between methods, and adjustments.
+- Workers and configurable commissions.
 - Lightweight inventory and counter sales.
 - Operational dashboard and reports.
 - Existing Organization, Branch, member, authentication, language, security, and
@@ -87,6 +88,9 @@ are not automatic bank reconciliations.
   supplier management.
 - Automatic service recipes that consume exact quantities of supplies.
 - Full payroll, advances, and complex commission settlement.
+- Split payments. Each recorded payment uses one method in the MVP.
+- Financial transfers between Branches. The MVP permits transfers only between
+  payment methods inside the same Branch.
 - License-plate recognition, dedicated hardware, native mobile apps, and machine
   integrations.
 

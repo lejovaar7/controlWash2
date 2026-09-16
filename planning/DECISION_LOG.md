@@ -76,3 +76,19 @@ progressive disclosure, and cards on narrow screens.
 ControlWash is the selected product name and technical identifiers use
 `controlwash`. Trademark, domain, and social-handle clearance remain required
 launch checks; they do not make the current naming decision provisional.
+
+## D-011 — Powerful MVP with simple primary flows
+
+**Status:** Accepted, 2026-09-15
+
+Cash sessions, multiple-worker attribution, configurable commissions, stock
+transfers and ticket-linked retail sales remain MVP capabilities. Simplicity must
+come from progressive disclosure and sensible defaults, not from removing the
+business outcome.
+
+Each individual MVP payment uses one method; split payments are deferred.
+Financial balance transfers are supported only between payment methods inside
+the same Branch. Cross-Branch financial transfers are rejected. Adjustments
+correct a recorded balance with a reason, but they do not replace paired
+transfers or source-aware reversals because those operations require linked audit
+history.

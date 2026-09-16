@@ -118,18 +118,19 @@ Acceptance criteria:
 - Methods can be reordered and optionally receive an opening balance once per
   Branch setup through a movement.
 
-### US-D02 — Collect a split payment (Must)
+### US-D02 — Collect a payment (Must)
 
-As an operator, I want to divide a ticket across payment methods so that mixed
-payments are represented accurately.
+As an operator, I want to choose one payment method and record the collected
+amount so that daily balances stay clear.
 
 Acceptance criteria:
 
-- Positive payment parts sum exactly to the collected amount.
-- Posting is idempotent and creates one financial movement per payment part.
+- The amount is positive and uses one active payment method.
+- Posting is idempotent and creates one financial movement.
 - Overpayment and change are not inferred; the operator must record the intended
   collected amount according to company policy.
 - Delivery warns or blocks when an amount remains unpaid according to settings.
+- Dividing one payment across methods is deferred until pilot demand proves it.
 
 ### US-D03 — Record an expense (Must)
 
@@ -146,15 +147,19 @@ Acceptance criteria:
 
 ### US-D04 — Adjust and transfer balances (Must)
 
-As an owner or authorized admin, I want reasoned adjustments and transfers so
-that real operational corrections remain transparent.
+As an owner or authorized admin, I want reasoned adjustments and same-Branch
+transfers between payment methods so that corrections and real movements remain
+transparent.
 
 Acceptance criteria:
 
 - Adjustment requires signed amount, method, Branch, reason, actor, and time.
-- A transfer creates linked debit and credit movements atomically.
-- Transfer changes method balances but not total company income or expense.
+- A transfer creates linked debit and credit movements atomically between two
+  different payment methods in the same Branch.
+- Transfer changes method balances but not Branch or company income/expense.
 - Reversal points to the original movement and cannot itself be silently deleted.
+- A transfer between Branches is rejected; use independently authorized records
+  at each Branch if the real-world process requires them.
 
 ### US-D05 — Open and close a cash session (Should)
 
@@ -227,7 +232,8 @@ Acceptance criteria:
 - Sale lines snapshot product name, quantity, and unit price.
 - A sale may link to a wash ticket or stand alone.
 - Posting atomically creates negative stock movements and payment movements.
-- Split payment is supported and reversal restores stock and reverses income.
+- One active payment method is selected; reversal restores stock and reverses
+  income.
 
 ### US-E06 — Transfer stock (Should)
 
@@ -253,7 +259,7 @@ Acceptance criteria:
 
 ## Epic F — Workers and commissions
 
-### US-F01 — Configure simple commission rules (Must)
+### US-F01 — Configure commission rules (Must)
 
 As an owner, I want a fixed amount or percentage rule so that wash earnings can
 be estimated consistently.
@@ -262,7 +268,8 @@ Acceptance criteria:
 
 - Rule can apply to a service and optionally Branch, worker, and effective dates.
 - A delivered ticket snapshots the applied commission result.
-- Multiple workers use an explicit allocation; no implicit equal split.
+- Multiple workers persist an explicit allocation; equal split is the simple
+  default and the first worker receives any basis-point rounding remainder.
 - Commission records do not create payroll expense automatically in MVP.
 
 ### US-F02 — Review commission totals (Must)
@@ -286,7 +293,7 @@ without reading every ticket.
 Acceptance criteria:
 
 - Shows vehicles by status, service/retail income, expenses, net recorded cash
-  flow, method balances, average cycle time, and low-stock count.
+  flow, method balances, average cycle time, commissions, and low-stock count.
 - Every metric has a defined time/Branch scope and drill-down source.
 - Unpaid and cancelled tickets are visible separately.
 

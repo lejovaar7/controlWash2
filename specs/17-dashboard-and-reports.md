@@ -90,7 +90,8 @@ deferred until demonstrated necessary.
 - Date boundaries behave correctly in the configured timezone and DST cases.
 - Report and export queries cannot widen Branch scope via filters.
 - Reversals remove net effects while remaining visible in drill-down.
-- Transfers affect method/Branch balances but not income or expense totals.
+- Transfers affect method balances inside one Branch but not Branch totals,
+  income or expense totals.
 - Ticket-linked retail revenue is counted once.
 - Finance/cost/commission fields are server-redacted for unauthorized roles.
 - CSV output neutralizes spreadsheet formulas and preserves exact values.

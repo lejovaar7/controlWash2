@@ -1,9 +1,9 @@
 # 14 — Payments, Cash, Expenses, and Financial Movements
 
-**Status:** Partially implemented. Configurable payment-method labels and their
-Cash default are available through guarded APIs and setup UI. Opening balances,
-movements, expenses, adjustments, transfers, reversals and cash sessions remain
-target MVP work.
+**Status:** Implemented for the local MVP: configurable methods, opening
+adjustments, one-method payments, immutable movements, expenses, balances,
+same-Branch method transfers, reversals and cash sessions. Split payments and
+cross-Branch financial transfers are explicitly deferred.
 
 ## Purpose and boundary
 
@@ -15,13 +15,13 @@ produce accounting entries, calculate taxes, or establish legal profit.
 
 Each method belongs to one Organization and has:
 
-- ID, name, normalized unique name, optional kind (`cash`, `wallet`, `bank`,
-  `card`, `other`), display order, and active state;
+- ID, name, normalized unique name, display order, and active state;
 - created/updated actor metadata;
 - no account credentials, bank numbers, API keys, or integration secrets.
 
-Cash is seeded idempotently. Organizations may add Nequi, Bancolombia, Daviplata,
-or any other plain label. Referenced methods deactivate rather than delete. An
+Cash is seeded idempotently. In the MVP the user only enters a plain method name
+such as Nequi, Bancolombia or Daviplata. There is no classification field in the
+form, API or stored record. Referenced methods deactivate rather than delete. An
 inactive method remains visible in history but cannot receive ordinary new
 transactions; authorized reversal of its existing movements remains possible.
 
@@ -41,12 +41,12 @@ Types:
 | Type | Sign/effect | Source |
 | --- | --- | --- |
 | `opening_balance` | Signed initial recorded position | Setup action |
-| `service_income` | Positive | Ticket payment allocation |
-| `retail_income` | Positive | Quick sale payment allocation |
+| `service_income` | Positive | Ticket payment |
+| `retail_income` | Positive | Quick sale payment |
 | `other_income` | Positive | Explicit authorized non-sale income |
 | `expense` | Negative | Expense or posted purchase |
 | `adjustment` | Positive or negative | Authorized correction |
-| `transfer` | Paired negative/positive | Transfer document |
+| `transfer` | Paired negative/positive | Same-Branch method transfer |
 | `reversal` | Exact opposite | Original movement |
 
 Recorded method balance for a Branch and cutoff is the exact sum of all movements
@@ -55,13 +55,11 @@ Organization totals aggregate only authorized Branches.
 
 ## Payments
 
-A payment document allocates a positive collected amount to one source document
-and one or more methods. Each part must be positive; parts must sum exactly to the
-payment total. The server validates outstanding amount and recomputes status.
-
-MVP allows multiple payments over time and split methods. It does not infer tips,
-cash change, card fees, or wallet transfer confirmations. Refund/correction is a
-linked reversal, not a negative ordinary payment.
+A payment document records the full positive total for one source document and
+one active method. The server rejects partial and second ordinary payments.
+It does not infer tips, cash change, card fees, or wallet confirmations.
+Refund/correction is a linked reversal, not a negative ordinary payment. Split
+and partial payments are deferred rather than hidden behind an advanced control.
 
 ## Expenses
 
@@ -86,16 +84,26 @@ An adjustment requires method, Branch, nonzero signed amount, effective time,
 reason, and authorized actor. It is never used as a shortcut to edit a payment,
 expense, purchase, or sale that has a known source; reverse/correct the source.
 
+Typical adjustment cases are a counted cash difference, a corrected starting
+position, or an unexplained operational difference that the Owner deliberately
+accepts with a reason. A real expense remains an Expense, and money moved from
+one method to another remains a linked Transfer, so reports can explain what
+actually happened.
+
 ## Transfers
 
-A transfer specifies one Organization, source Branch/method, destination
-Branch/method, positive amount, effective time, and reason/reference. Source and
-destination cannot be identical. Posting atomically creates linked equal and
-opposite movements. A transfer changes per-method/per-Branch balances but not
-Organization income, expense, or net total.
+A transfer specifies one Organization, one Branch, source payment method,
+destination payment method, positive amount, effective time, and
+reason/reference. Source and destination methods cannot be identical. Posting
+atomically creates linked equal and opposite movements. A transfer changes the
+two method balances but not Branch or Organization income, expense, or net total.
 
-Cross-Branch transfer requires authority over both Branches. Cross-currency and
-cross-Organization transfers are not supported.
+Both sides must belong to the same authorized Branch. Cross-Branch,
+cross-currency and cross-Organization transfers are rejected in the MVP.
+
+An adjustment is not a substitute for this operation: the paired transfer keeps
+the source and destination linked and prevents one side from being recorded
+without the other.
 
 ## Reversal
 
@@ -109,7 +117,7 @@ cross-Organization transfers are not supported.
 
 ## Cash sessions
 
-Cash sessions apply to the Cash method at one Branch:
+Cash sessions apply to the Cash method at one Branch and record:
 
 - opening time/actor and optional declared opening count;
 - closing time/actor, expected amount, counted amount, difference, and notes;
@@ -122,20 +130,22 @@ method reconciliation flow may be designed separately.
 
 ## Permissions
 
-Use explicit capabilities layered on inherited roles:
+MVP uses a fixed, testable role policy layered on inherited Branch scope:
 
 - `finance.view`: totals and movements in accessible Branches;
 - `payment.collect`: ordinary ticket/sale payments;
 - `expense.create`: ordinary expenses;
 - `finance.adjust`: adjustments and other income;
-- `finance.transfer`: control of both endpoints;
+- `finance.transfer`: same-Branch method transfers;
 - `finance.reverse`: reversals;
 - `cash.close`: session close/count;
 - `finance.configure`: methods and categories.
 
-Owner has all. Admin capabilities are configurable within Branch scope. A member
-defaults only to payment collection; expenses can be enabled. No capability
-widens inherited Branch access.
+Owner and admin receive the management capabilities within their accessible
+Branch scope. A member receives ordinary operational actions: viewing balances,
+collecting a full payment, recording an expense and completing sales/purchases;
+adjustments, transfers, reversals and configuration remain manager-only. Custom
+per-user capability profiles are deferred. No role widens inherited Branch access.
 
 ## Reporting definitions
 
@@ -153,9 +163,9 @@ consumption do not become expenses unless an actual financial movement exists.
 
 - Cash is seeded once under concurrent initialization.
 - Method names are unique per Organization after normalization.
-- Split payments create exact parts and cannot exceed policy limits.
+- Each MVP payment uses exactly one active method.
 - Every displayed balance equals an independently summed movement query.
-- Transfers net to zero and post both sides atomically.
+- Transfers stay inside one Branch, net to zero and post both sides atomically.
 - Source reversals cannot leave related stock or financial effects inconsistent.
 - Unauthorized finance fields are redacted, not merely hidden in navigation.
 - All posting/reversal endpoints are same-origin JSON, size-bounded, audited, and

@@ -1,9 +1,10 @@
 # 19 — Domain Permissions, Isolation, and Audit
 
-**Status:** Partially implemented. Product setup enforces tenant context and
-Owner/unrestricted-admin writes, with automated cross-tenant and role coverage.
-Branch-scoped transactional capabilities and the full audit trail remain target
-MVP work.
+**Status:** Implemented for the local MVP. Tenant and Branch scope is enforced on
+domain routes; role-derived MVP capabilities separate ordinary operation from
+manager-only configuration, adjustment and reversal actions; consequential
+events and ledgers retain append-only evidence. More granular custom capability
+profiles are deferred until pilot evidence requires them.
 
 ## Purpose
 
@@ -18,14 +19,14 @@ Effective authorization is the intersection of:
 1. authenticated active user;
 2. active membership in the validated Organization;
 3. inherited role and permitted Branch set;
-4. explicit product capability;
+4. the fixed MVP role policy for the requested action;
 5. resource state and source-document rules.
 
 Possessing a capability never grants a new Branch. Client navigation/controls are
 UX only. Every route resolves resources through Organization-scoped queries and
 then validates Branch scope before returning data or existence-sensitive errors.
 
-## Capability groups
+## Role-policy action groups
 
 | Group | Capabilities |
 | --- | --- |
@@ -37,11 +38,12 @@ then validates Branch scope before returning data or existence-sensitive errors.
 | Commission | `commission.view`, `commission.configure`, `commission.view_self` |
 | Reporting | `report.operation`, `report.finance`, `report.inventory_cost`, `report.commission`, `report.export` |
 
-Store capabilities through a reviewed membership extension or normalized role
-policy; do not accept arbitrary capability strings from the browser. Owner has
-all capabilities. Product defaults for admin/member must be explicit, seeded,
-and testable. Only owner or suitably delegated admin may change product access,
-and never beyond their own Branch/capability authority.
+The MVP implements these names as a reviewed role policy, not arbitrary strings
+sent by the browser. Owner has every action. Admin has management actions only
+inside inherited Branch scope. Member has ordinary queue, collection, expense,
+purchase, consumption and sale actions; configuration, transfer, adjustment,
+reversal and restricted reporting remain manager-only. Per-user product action
+profiles are a post-pilot extension and can never widen Branch access.
 
 ## Resource scope rules
 
@@ -49,7 +51,8 @@ and never beyond their own Branch/capability authority.
   limited workflow reveal only permitted operational history.
 - Tickets, payments, movements, expenses, purchases, sales, stock, cash sessions,
   assignments, commissions, and reports are Branch-scoped.
-- A cross-Branch transfer requires access and capability at both endpoints.
+- Financial transfers are allowed only between payment methods inside the same
+  authorized Branch. Cross-Branch financial transfers are rejected.
 - Organization-level configuration requires company-wide authority unless a
   specification defines a Branch override.
 - Historical records preserve actors who later become inactive without restoring
@@ -94,7 +97,7 @@ replace domain invariants or atomic posting.
 
 Every module adds tests for:
 
-- owner, unrestricted admin, limited admin, member with/without capability,
+- owner, unrestricted admin, limited admin, member under the fixed policy,
   inactive membership, and unauthenticated user;
 - same Branch, other authorized Branch, unauthorized Branch, and foreign tenant;
 - active, inactive, draft, posted, reversed/cancelled resource states;

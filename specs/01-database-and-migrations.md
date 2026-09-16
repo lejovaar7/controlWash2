@@ -76,6 +76,8 @@ Wrangler applies that same directory in development, tests, and deployment.
 | `0006_lively_starbolt.sql` | Nullable `user.locale` for personal language preference |
 | `0007_smiling_kree.sql` | Organization operating settings, payment methods, expense categories and vehicle types |
 | `0008_loose_killraven.sql` | Normalize existing company languages and require an explicit Organization locale |
+| `0009_perpetual_lockjaw.sql` | Remove the unused payment-method classification while preserving names and history |
+| `0010_localize_default_branch.sql` | Localize a legacy single default `Main` Branch without changing custom or multi-Branch data |
 
 Migrations are generated artifacts and the single migration source of truth.
 There is no test-only schema and no custom migration runner.

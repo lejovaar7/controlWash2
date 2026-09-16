@@ -45,13 +45,13 @@ ownership and avoids overlapping endpoints.
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| POST | `/api/wash-tickets/:id/payments` | Post one/split ticket payment. |
+| POST | `/api/wash-tickets/:id/payments` | Post one ticket payment using one method. |
 | POST | `/api/payments/:id/reverse` | Reverse through source-aware workflow. |
 | GET/POST | `/api/expenses` | Filter/page or create/post expense. |
 | GET | `/api/expenses/:id` | Expense and linked movement detail. |
 | POST | `/api/expenses/:id/reverse` | Reasoned exact reversal. |
 | POST | `/api/financial-adjustments` | Authorized signed adjustment. |
-| POST | `/api/financial-transfers` | Atomic paired method/Branch transfer. |
+| POST | `/api/financial-transfers` | Atomic paired transfer between methods in one Branch. |
 | POST | `/api/financial-transfers/:id/reverse` | Reverse both sides. |
 | GET | `/api/financial-movements` | Authorized paginated ledger. |
 | GET | `/api/financial-balances` | Balances by accessible Branch/method/cutoff. |

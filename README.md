@@ -3,11 +3,12 @@
 Mobile-first operational control for car and motorcycle washes: wash queue,
 payments, expenses, workers, lightweight inventory, and retail sales.
 
-ControlWash is an incremental MVP built on the implemented SaaS foundation. Its
-first verified product slice covers operating settings, deterministic catalogs
-and configurable payment methods; the remaining domain modules are specified but
-not yet completed. ControlWash is the selected product name; trademark and domain
-clearance remain separate launch tasks.
+ControlWash is a complete local MVP built on the implemented SaaS foundation. It
+covers the wash queue, customers and vehicles, services and pricing, payments,
+expenses, method balances and transfers, cash sessions, workers and commissions,
+inventory, purchases, quick sales, reports, exports, reversals and audit evidence.
+ControlWash is the selected product name; trademark and domain clearance remain
+separate launch tasks.
 
 **Stack:** React + Vite + TypeScript + Hono on Cloudflare Workers.
 Generated from Cloudflare's official `cloudflare/templates/vite-react-template`.
@@ -62,12 +63,18 @@ served by Vite. In production, `wrangler.json` points the Worker at
 | GET/POST/PATCH | `/api/payment-methods`        | List and manage plain payment-method labels |
 | GET    | `/api/expense-categories`             | List seeded Organization expense categories |
 | GET    | `/api/vehicle-types`                  | List seeded Organization vehicle types |
+| GET/POST/PATCH | `/api/customers`, `/api/vehicles` | Manage optional customer and vehicle records |
+| GET/POST/PATCH/PUT | `/api/services/*`, `/api/workers/*`, `/api/commission-rules/*` | Configure priced services, workers and commission rules |
+| GET/POST/PATCH/PUT | `/api/wash-tickets/*` | Create, assign, transition, cancel and collect wash tickets |
+| GET/POST | `/api/expenses/*`, `/api/financial-*`, `/api/cash-sessions/*` | Record and reverse money movements, balances, transfers and sessions |
+| GET/POST/PATCH | `/api/inventory/*`, `/api/purchases/*`, `/api/stock-transfers/*` | Manage stock, purchases, usage, adjustments and transfers |
+| GET/POST | `/api/retail-sales/*`, `/api/reports/*` | Post quick sales and read/export reports |
 | GET    | `/api/members`                        | Owner/admin-only directory in the active Organization |
 | POST   | `/api/members`                        | Provision/reuse an employee with supported role and Branches |
 | PATCH  | `/api/members/:membershipId`          | Update a manageable employee's role and exact Branch scope |
 | PATCH  | `/api/members/:membershipId/status`   | Deactivate/reactivate this company's access, preserving identity/history |
 | POST   | `/api/members/:membershipId/setup/resend` | Resend setup for an unfinished, manageable account |
-| POST   | `/api/platform/organizations`         | Platform-only company, Owner, and Main Branch provisioning |
+| POST   | `/api/platform/organizations`         | Platform-only company, Owner, and localized initial Branch provisioning |
 | POST   | `/api/platform/account-setup/resend`  | Platform-only setup-link resend |
 | POST   | `/api/account/setup-password`         | First-time password setup for the authenticated user |
 
@@ -202,7 +209,7 @@ Client-side routing uses React Router, with three route groups:
 | ----- | ------ | ------ |
 | Public/auth | `/`, `/login`, `/verify-email`, `/forgot-password`, `/reset-password`, `/setup-account`, `/no-company` | Implemented |
 | Platform | `/platform`, `/platform/organizations/new` | Implemented; platform-admin UX guard plus server authorization |
-| Application | `/app/dashboard`, `/app/branches`, `/app/no-branch-access`, `/app/members`, `/app/wash-setup`, `/app/settings` | Branch/Team management, wash-business setup, workspace summary and language settings |
+| Application | `/app/dashboard`, `/app/queue`, `/app/cash`, `/app/inventory`, `/app/sales`, `/app/customers`, `/app/workers`, `/app/services`, `/app/reports`, `/app/branches`, `/app/members`, `/app/wash-setup`, `/app/settings` | Complete bilingual ControlWash MVP plus company administration |
 | Redirected | `/register`, `/onboarding` | No public signup or self-service company onboarding |
 
 Invitation acceptance is not exposed: its placeholder page and route were removed.
@@ -228,7 +235,7 @@ authorized administrators.
 ```
 Platform admin  →  creates company
                 →  provisions the owner
-                →  creates the company's Main branch
+                →  creates its localized initial branch
 Owner           →  receives one account-setup link
                 →  confirms their email, chooses a password
                 →  enters the company
@@ -269,14 +276,14 @@ npm run dev
 
 Existing memberships stay active and existing admins retain all-Branch access.
 Their permission to appoint admins now requires an explicit Owner grant at
-**Members → Edit access → Can appoint administrators**. No one gains that
+**Users & permissions → Edit access → Can appoint administrators**. No one gains that
 delegation automatically.
 
 For a separately authorized release, apply `npm run db:migrate:dev` before
 `npm run deploy:dev`, validate the flows, then repeat with the explicit production
 commands when approved. Deploy never runs migrations implicitly. Do not roll back
 to authorization code that ignores inactive memberships or scoped admins after
-relying on those controls. See [Member Management](specs/07-member-management.md)
+relying on those controls. See [Users and Permissions](specs/07-member-management.md)
 for policies and the limits of ordered, non-transactional access edits.
 
 ### Bootstrapping the first platform admin
@@ -349,17 +356,18 @@ this template can add its own roles and domain permissions on top.
 Each organization carries a required `locale` plus optional `timezone` and
 `currency`.
 
-An owner signs in to a company that already exists, with its `Main` Branch
-already created. One active company is entered automatically and appears as a
-label, not a selector. With multiple active companies, an existing valid selection
-is kept; otherwise the user explicitly chooses one. Switching company clears the
-old Branch and reloads the app to discard previous-company state. With no active
-memberships, the user sees a no-active-company-access notice. There is still one
-identity and one login; memberships are company access records, not subscriptions.
+An owner signs in to a company that already exists, with its initial Branch
+already created as `Sede Principal` in Spanish or `Main Branch` in English. One
+active company is entered automatically and appears as a label, not a selector.
+With multiple active companies, an existing valid selection is kept; otherwise
+the user explicitly chooses one. Switching company clears the old Branch and
+reloads the app to discard previous-company state. With no active memberships,
+the user sees a no-active-company-access notice. There is still one identity and
+one login; memberships are company access records, not subscriptions.
 
-Every company has at least one internal branch. A single-location business keeps
-just `Main` and the branch selector stays out of the way — it appears as a plain
-label. Add a second branch and the switcher becomes a real control.
+Every company has at least one internal branch. In a single-location business,
+the initial Branch is shown as context without making the user choose it. Add a
+second Branch and the switcher becomes a real control.
 
 | Role | Branches | Management |
 | ---- | -------- | ---------- |
@@ -411,8 +419,9 @@ company. It appears only when the account has an active company; platform-only
 accounts choose English or Spanish directly. A personal choice applies across
 companies and sessions; it never changes anyone else's account. Company changes
 apply immediately in the current view and on other sessions' next focus/visible
-30-second refresh. Names, Branch names (including `Main`), addresses and other
-entered data are not translated.
+30-second refresh. Names, custom Branch names, addresses and other entered data
+are not translated. Only the initial Branch receives a locale-appropriate name
+when the company is provisioned.
 
 Before sign-in, the selector is browser-local. Public pages use a supported
 `?lang=...` hint, saved browser choice, browser language list, then the fallback.
@@ -462,13 +471,15 @@ deployed to either remote environment.
 
 ## Current status
 
-Starter v1 is implemented. The first ControlWash product slice now includes
-Organization operating settings, idempotent defaults for Cash, expense
-categories and vehicle types, configurable payment-method labels, guarded APIs,
-a responsive bilingual setup screen and tenant-isolation tests. Customers,
-services, wash tickets, financial movements, expenses, inventory, retail sales
-and reporting remain planned work. The quality gate includes typecheck, lint,
-Node and Workers/D1 tests, and all three environment builds/deployment dry runs.
+The ControlWash MVP is implemented locally. It includes Organization settings,
+editable catalogs, fast vehicle intake, the live wash queue, one-method payments,
+opening adjustments, expenses, balances, same-Branch method transfers, cash
+sessions, workers, configurable commission estimates, inventory, purchases,
+consumption, Branch stock transfers, quick retail sales, reversals, reports, CSV
+exports and append-only audit evidence. Consequential posts are idempotent and
+all transactional reads/writes are tenant- and Branch-scoped. The quality gate
+includes typecheck, lint, Node and Workers/D1 tests, and all three environment
+builds/deployment dry runs.
 See [the dated verification record](specs/VERIFICATION.md) for results, manual
 checks and dependency-audit results. The 2026-09-02 dependency remediation leaves
 both the full and production-only audits at zero reported vulnerabilities.

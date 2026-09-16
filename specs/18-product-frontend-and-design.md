@@ -1,9 +1,8 @@
 # 18 — Product Frontend and Design System
 
-**Status:** Partially implemented. `/app/wash-setup` reuses the inherited design
-system for a responsive bilingual settings and payment-method experience. The
-operational queue, financial, inventory, retail and reporting surfaces remain
-target MVP work.
+**Status:** Implemented for the local MVP. Responsive bilingual surfaces cover
+dashboard, intake/queue, finance, inventory, retail, customers, workers,
+services/prices, reports and administration using the inherited design system.
 
 ## Experience goal
 
@@ -66,7 +65,7 @@ Primary product navigation:
 - Inventory
 - Customers & vehicles
 - Reports
-- Team, Branches, and Settings according to permission
+- Users & permissions, Branches, and Settings according to permission
 
 Navigation hides unauthorized destinations for clarity, but the Worker remains
 the security boundary. Avoid empty top-level sections for deferred features.
