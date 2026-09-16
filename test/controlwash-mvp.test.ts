@@ -75,6 +75,12 @@ describe("ControlWash money, inventory, and retail", () => {
 		const report = await callApi("/api/reports/finance", owner); expect(report.status).toBe(200); const body = await report.json() as { movements: unknown[]; netMinor: number }; expect(body.movements.length).toBeGreaterThan(0); const [sumRow] = await getDb(env).select({ value: sum(financialMovement.amountMinor) }).from(financialMovement).where(and(eq(financialMovement.organizationId, organizationId), eq(financialMovement.branchId, branchId))); expect(body.netMinor).toBe(Number(sumRow?.value ?? 0));
 	});
 
+	it("reconciles a physical Cash session from its opening count", async () => {
+		const digital = await callApi("/api/cash-sessions", owner, { paymentMethodId: nequiId, openingBalanceMinor: 5000 }); expect(digital.status).toBe(400);
+		const opened = await callApi("/api/cash-sessions", owner, { paymentMethodId: cashId, openingBalanceMinor: 5000 }); expect(opened.status).toBe(201); const sessionId = (await opened.json() as { id: string }).id;
+		const closed = await callApi(`/api/cash-sessions/${sessionId}/close`, owner, { countedClosingMinor: 5000 }); expect(closed.status).toBe(200); await expect(closed.json()).resolves.toMatchObject({ expectedClosingMinor: 5000, differenceMinor: 0, status: "closed" });
+	});
+
 	it("keeps catalog and inventory rows in their organization", async () => {
 		expect(await getDb(env).select().from(serviceCatalog).where(and(eq(serviceCatalog.organizationId, outsiderOrganizationId), eq(serviceCatalog.id, serviceId)))).toHaveLength(0); expect(await getDb(env).select().from(inventoryItem).where(eq(inventoryItem.organizationId, outsiderOrganizationId))).toHaveLength(0);
 	});

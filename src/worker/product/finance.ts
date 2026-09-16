@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, sum } from "drizzle-orm";
+import { and, asc, desc, eq, gte, sum } from "drizzle-orm";
 import { AuthError } from "../auth/session";
 import { getTenantDb } from "../db";
 import { auditEvent, cashSession, expense, expenseCategory, financialMovement, idempotencyRecord, payment, paymentMethod, washTicket } from "../db/schema";
@@ -149,6 +149,7 @@ export async function listCashSessions(env: Env, request: Request) {
 
 export async function openCashSession(env: Env, request: Request, body: Record<string, unknown>) {
 	const context = await requireProductContext(env, request); assertKeys(body, ["paymentMethodId", "openingBalanceMinor"]); const paymentMethodId = textValue(body.paymentMethodId)!; const method = await activeMethod(env, context.tenant.organizationId, paymentMethodId); if (!method) throw new RequestError(400, "INVALID_PAYMENT_METHOD");
+	if (method.systemKey !== "cash") throw new RequestError(400, "CASH_METHOD_REQUIRED");
 	const openingBalanceMinor = integerValue(body.openingBalanceMinor, "INVALID_AMOUNT"); const id = crypto.randomUUID(); const db = getTenantDb(env, context.tenant.organizationId);
 	await db.batch([db.insert(cashSession).values({ id, organizationId: context.tenant.organizationId, branchId: context.branch.branchId, paymentMethodId, openingBalanceMinor, openedByUserId: context.tenant.userId }), db.insert(auditEvent).values(auditValues(context, "cash_session.opened", "cash_session", id, null, { openingBalanceMinor }))]);
 	return { id, paymentMethodId, openingBalanceMinor, status: "open" };
@@ -157,7 +158,7 @@ export async function openCashSession(env: Env, request: Request, body: Record<s
 export async function closeCashSession(env: Env, request: Request, id: string, body: Record<string, unknown>) {
 	const context = await requireProductContext(env, request); assertKeys(body, ["countedClosingMinor"]); const countedClosingMinor = integerValue(body.countedClosingMinor, "INVALID_AMOUNT"); const db = getTenantDb(env, context.tenant.organizationId);
 	const [session] = await db.select().from(cashSession).where(and(eq(cashSession.id, id), eq(cashSession.organizationId, context.tenant.organizationId), eq(cashSession.branchId, context.branch.branchId), eq(cashSession.status, "open"))).limit(1); if (!session) throw new AuthError(404, "RESOURCE_NOT_FOUND");
-	const [total] = await db.select({ value: sum(financialMovement.amountMinor) }).from(financialMovement).where(and(eq(financialMovement.organizationId, context.tenant.organizationId), eq(financialMovement.branchId, context.branch.branchId), eq(financialMovement.paymentMethodId, session.paymentMethodId)));
-	const expectedClosingMinor = Number(total?.value ?? 0); await db.batch([db.update(cashSession).set({ expectedClosingMinor, countedClosingMinor, status: "closed", closedByUserId: context.tenant.userId, closedAt: new Date() }).where(eq(cashSession.id, id)), db.insert(auditEvent).values(auditValues(context, "cash_session.closed", "cash_session", id, null, { expectedClosingMinor, countedClosingMinor }))]);
+	const [total] = await db.select({ value: sum(financialMovement.amountMinor) }).from(financialMovement).where(and(eq(financialMovement.organizationId, context.tenant.organizationId), eq(financialMovement.branchId, context.branch.branchId), eq(financialMovement.paymentMethodId, session.paymentMethodId), gte(financialMovement.createdAt, session.openedAt)));
+	const expectedClosingMinor = session.openingBalanceMinor + Number(total?.value ?? 0); await db.batch([db.update(cashSession).set({ expectedClosingMinor, countedClosingMinor, status: "closed", closedByUserId: context.tenant.userId, closedAt: new Date() }).where(eq(cashSession.id, id)), db.insert(auditEvent).values(auditValues(context, "cash_session.closed", "cash_session", id, null, { expectedClosingMinor, countedClosingMinor }))]);
 	return { ...session, expectedClosingMinor, countedClosingMinor, differenceMinor: countedClosingMinor - expectedClosingMinor, status: "closed" };
 }
