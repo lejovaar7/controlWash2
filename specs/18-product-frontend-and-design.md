@@ -20,10 +20,19 @@ feedback, and coherent states rather than decoration.
   switchers, and server-authoritative route context.
 - No new global state or data-fetching library without measured need.
 
+This branded baseline is the explicit product-level exception that permits
+visual token, size, radius and elevation changes in the checked-in Button, Input
+and Card primitives. Their behavior and public component APIs remain stable.
+
 ## Visual direction
 
-- Neutral warm/cool surfaces with one restrained brand accent to be selected
-  after naming validation.
+- The approved `controlwash-logo.svg` is the canonical in-product wordmark. Its
+  transparent canvas is cropped through the SVG view box, never by rasterizing
+  or distorting the artwork.
+- Brand colors are deep navy `#02285A` and bright wash blue `#02A3F1` on cool
+  white/blue-gray surfaces. Navy leads navigation and consequential actions;
+  bright blue supplies focus, highlights and energy without replacing semantic
+  status colors.
 - Strong dark text, accessible secondary text, subtle borders, and limited shadow.
 - Semantic colors are reserved: blue/informational, amber/waiting, violet/in
   progress, green/ready/paid/success, red/cancelled/error/critical stock.
@@ -31,6 +40,11 @@ feedback, and coherent states rather than decoration.
 - Border radius and elevation stay consistent; avoid a dashboard of unrelated
   floating cards.
 - Motion is short and functional and respects reduced-motion preferences.
+
+The wordmark appears on public/authentication surfaces and in the application
+shell. Dashboards may repeat it only inside a bounded brand panel; it must not
+compete with live operational data. Product screens use the same tokens and
+components rather than page-specific approximations of the logo colors.
 
 ## Interaction principles
 

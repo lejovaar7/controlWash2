@@ -5,6 +5,22 @@ production deployment. The latest repository checkpoint is recorded first; earli
 localization, environment, Starter v1 and dependency-remediation evidence is
 preserved below.
 
+## 2026-09-16: Branded interface foundation
+
+Integrated the approved ControlWash SVG and its navy/bright-blue palette across
+the public shell, authentication experience, application shell, shared
+Button/Input/Card primitives, page hierarchy and operational dashboard. The SVG
+remains vector artwork; only the copied asset's view box was cropped to remove
+transparent canvas and improve legibility. The login was visually reviewed in
+Spanish at desktop width; the authenticated dashboard still requires the
+representative-user pilot for browser-level observation.
+
+`npm run check` passed typecheck, lint, 24 environment/bootstrap tests, two i18n
+checks, 169 Workers/D1 tests, and local/dev/production builds and deployment dry
+runs. `git diff --check` also passed. The build retains the existing non-blocking
+JavaScript chunk-size warning; no API, database, permission or ledger rule
+changed.
+
 ## 2026-09-15: Complete local ControlWash MVP
 
 Implemented modules 10–19 across generated Drizzle schema/migration
